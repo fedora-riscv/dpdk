@@ -1,0 +1,15 @@
+diff -up ./lib/librte_eal/linuxapp/Makefile.orig ./lib/librte_eal/linuxapp/Makefile
+--- ./lib/librte_eal/linuxapp/Makefile.orig	2014-05-29 05:43:11.000000000 -0400
++++ ./lib/librte_eal/linuxapp/Makefile	2014-06-03 12:24:26.754134045 -0400
+@@ -31,7 +31,10 @@
+ 
+ include $(RTE_SDK)/mk/rte.vars.mk
+ 
+-DIRS-$(CONFIG_RTE_LIBRTE_EAL_LINUXAPP) += igb_uio
++# In a future release of dpdk, igb_uio will be build-time
++# disable-able.  Until then, just comment it out here
++#DIRS-$(CONFIG_RTE_LIBRTE_EAL_LINUXAPP) += igb_uio
++
+ DIRS-$(CONFIG_RTE_LIBRTE_EAL_LINUXAPP) += eal
+ ifeq ($(CONFIG_RTE_LIBRTE_KNI),y)
+ DIRS-$(CONFIG_RTE_LIBRTE_EAL_LINUXAPP) += kni
