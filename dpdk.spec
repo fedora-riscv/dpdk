@@ -1,4 +1,4 @@
-%global rel 0.6
+%global rel 0.7
 
 # As per packaging guidelines, since dpdk is pre-release, this is the git hash
 # that I used with git archive to build the source tarball and the date on which
@@ -80,12 +80,14 @@ cp %{SOURCE3} ./config/
 %patch0 -p1
 
 %build
-make O=%{target} T=%{target} %{?_smp_mflags} config
-make O=%{target} %{?_smp_mflags}
-make O=%{target} %{?_smp_mflags} doc
+# need to enable debuginfo
+export CPU_CFLAGS=-g
+make V=1 O=%{target} T=%{target} %{?_smp_mflags} config
+make V=1 O=%{target} %{?_smp_mflags}
+make V=1 O=%{target} %{?_smp_mflags} doc
 
 %install
-make           O=%{target}     DESTDIR=%{destdir}
+make V=1   O=%{target}     DESTDIR=%{destdir}
 mkdir -p                               %{buildroot}%{_sbindir}
 mkdir -p                               %{buildroot}%{_libdir}/%{name}-%{version}
 mkdir -p                               %{buildroot}%{_includedir}/%{name}-%{version}
@@ -129,6 +131,9 @@ cp -a            tools                 %{buildroot}%{datadir}
 %exclude %{docdir}/html
 
 %changelog
-* Tue May 13 2014 - Neil Horman <nhorman@tuxdriver.com> - 1.0.7-0.4.20140603git5ebbb1728
+* Mon Jun 09 2014 - Neil Horman <nhorman@tuxdriver.com> - 1.0.7-0.7.20140603git5ebbb1728
+- Added verbose output to build
+
+* Tue May 13 2014 - Neil Horman <nhorman@tuxdriver.com> - 1.0.7-0.6.20140603git5ebbb1728
 - Initial Build
 
