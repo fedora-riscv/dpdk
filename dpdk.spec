@@ -1,4 +1,4 @@
-%global rel 0.7
+%global rel 0.8
 
 # As per packaging guidelines, since dpdk is pre-release, this is the git hash
 # that I used with git archive to build the source tarball and the date on which
@@ -62,7 +62,7 @@ More libraries are available as extensions in other packages.
 
 %package doc
 Summary: Data Plane Development Kit core programming API documentation
-Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: %{name} = %{version}-%{release}
 BuildArch: noarch
 
 %description doc
@@ -131,6 +131,9 @@ cp -a            tools                 %{buildroot}%{datadir}
 %exclude %{docdir}/html
 
 %changelog
+* Mon Jun 09 2014 - Neil Horman <nhorman@tuxdriver.com> - 1.0.7-0.8.20140603git5ebbb1728
+- Fixed doc arch versioning issue
+
 * Mon Jun 09 2014 - Neil Horman <nhorman@tuxdriver.com> - 1.0.7-0.7.20140603git5ebbb1728
 - Added verbose output to build
 
