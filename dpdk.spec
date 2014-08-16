@@ -1,4 +1,4 @@
-%global rel 0.10
+%global rel 0.11
 
 # As per packaging guidelines, since dpdk is pre-release, this is the git hash
 # that I used with git archive to build the source tarball and the date on which
@@ -142,6 +142,9 @@ cp -a            tools                 %{buildroot}%{datadir}
 %exclude %{docdir}/html
 
 %changelog
+* Sat Aug 16 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.7.0-0.11.20140603git5ebbb1728
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
 * Wed Jul 03 2014 - Neil Horman <nhorman@tuxdriver.com>
 - Fixing up release numbering
 
