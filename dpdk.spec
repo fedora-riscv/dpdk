@@ -1,16 +1,17 @@
 # Add option to enable combined library (--with combined)
 %bcond_with combined
 # Add option to build as shared libraries (--with shared)
-%bcond_with shared
+%bcond_without shared
 
 Name: dpdk
-Version: 1.7.0 
-Release: 8%{?dist}
+Version: 2.0.0 
+Release: 1%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.gz
 
 Patch1: dpdk-config.patch
-
+Patch2: enic-pun-fix.patch
+Patch3: null_array-bounds.patch
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -33,8 +34,8 @@ ExclusiveArch: x86_64
 %define target x86_64-%{machine}-linuxapp-gcc
 
 
-
-BuildRequires: kernel-headers, libpcap-devel, doxygen
+BuildRequires: kernel-headers, libpcap-devel, doxygen, texlive-dejavu
+BuildRequires: python-sphinx inkscape
 
 %description
 The Data Plane Development Kit is a set of libraries and drivers for
@@ -64,6 +65,8 @@ API programming documentation for the Data Plane Development Kit.
 %prep
 %setup -q
 %patch1 -p1 -z .config
+%patch2 -p1 -z .enic
+%patch3 -p1 -z .null
 
 %if %{with shared}
 sed -i 's:^CONFIG_RTE_BUILD_SHARED_LIB=n$:CONFIG_RTE_BUILD_SHARED_LIB=y:g' config/common_linuxapp
@@ -157,7 +160,7 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/%{name}-%{version}/${comblib}
 %{_bindir}/*
 %dir %{_libdir}/%{name}-%{version}
 %if %{with shared}
-%{_libdir}/%{name}-%{version}/*.so
+%{_libdir}/%{name}-%{version}/*.so.*
 %endif
 
 %files doc
@@ -171,9 +174,15 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/%{name}-%{version}/${comblib}
 %{_sysconfdir}/profile.d/dpdk-sdk-*.*
 %if ! %{with shared}
 %{_libdir}/%{name}-%{version}/*.a
+%else
+%{_libdir}/%{name}-%{version}/*.so
 %endif
 
 %changelog
+* Fri Jun 05 2015 Neil Horman <nhorman@redhat.com> - 2.0.0-1
+- update to latest upstream (bz 1227908)
+- Build as shared libraries
+
 * Wed Jan 28 2015 Panu Matilainen <pmatilai@redhat.com> - 1.7.0-8
 - Always build with -fPIC
 
