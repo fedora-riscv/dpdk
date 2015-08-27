@@ -1,8 +1,7 @@
-diff -up dpdk-2.0.0/build/.config.orig dpdk-2.0.0/build/.config
-diff -up dpdk-2.0.0/lib/librte_pmd_enic/enic_ethdev.c.orig dpdk-2.0.0/lib/librte_pmd_enic/enic_ethdev.c
---- dpdk-2.0.0/lib/librte_pmd_enic/enic_ethdev.c.orig	2015-04-06 14:01:57.388519083 -0400
-+++ dpdk-2.0.0/lib/librte_pmd_enic/enic_ethdev.c	2015-04-06 14:05:50.939207323 -0400
-@@ -313,13 +313,15 @@ static void enicpmd_dev_stop(struct rte_
+diff -up ./dpdk-2.1.0/drivers/net/enic/enic_ethdev.c.enic ./dpdk-2.1.0/drivers/net/enic/enic_ethdev.c
+--- ./dpdk-2.1.0/drivers/net/enic/enic_ethdev.c.enic	2015-08-17 13:35:37.000000000 -0400
++++ ./dpdk-2.1.0/drivers/net/enic/enic_ethdev.c	2015-08-26 10:33:17.953104878 -0400
+@@ -348,13 +348,15 @@ static void enicpmd_dev_stop(struct rte_
  {
  	struct rte_eth_link link;
  	struct enic *enic = pmd_priv(eth_dev);
@@ -21,4 +20,3 @@ diff -up dpdk-2.0.0/lib/librte_pmd_enic/enic_ethdev.c.orig dpdk-2.0.0/lib/librte
  }
  
  /*
-diff -up dpdk-2.0.0/test/.config.orig dpdk-2.0.0/test/.config

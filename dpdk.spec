@@ -4,8 +4,8 @@
 %bcond_without shared
 
 Name: dpdk
-Version: 2.0.0 
-Release: 2%{?dist}
+Version: 2.1.0 
+Release: 1%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.gz
 
@@ -36,7 +36,13 @@ ExclusiveArch: x86_64
 
 
 BuildRequires: kernel-headers, libpcap-devel, doxygen, texlive-dejavu
-BuildRequires: python-sphinx inkscape
+BuildRequires: python-sphinx inkscape texlive-latex-bin-bin
+BuildRequires: texlive-kpathsea-bin texlive-metafont-bin texlive-cm
+BuildRequires: texlive-cmap texlive-ec texlive-babel-english
+BuildRequires: texlive-fancyhdr texlive-fancybox texlive-titlesec
+BuildRequires: texlive-framed texlive-threeparttable texlive-mdwtools
+BuildRequires: texlive-wrapfig texlive-parskip texlive-upquote texlive-multirow
+BuildRequires: texlive-helvetic texlive-times texlive-dvips
 
 %description
 The Data Plane Development Kit is a set of libraries and drivers for
@@ -65,9 +71,9 @@ API programming documentation for the Data Plane Development Kit.
 
 %prep
 %setup -q
-%patch1 -p1 -z .config
-%patch2 -p1 -z .enic
-%patch3 -p1 -z .null
+%patch1 -p2 -z .config
+%patch2 -p2 -z .enic
+%patch3 -p2 -z .null
 
 %if %{with shared}
 sed -i 's:^CONFIG_RTE_BUILD_SHARED_LIB=n$:CONFIG_RTE_BUILD_SHARED_LIB=y:g' config/common_linuxapp
@@ -180,6 +186,9 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/%{name}-%{version}/${comblib}
 %endif
 
 %changelog
+* Wed Aug 26 2015 Neil Horman <nhorman@redhat.com> - 2.1.0-1
+- Update to latest version
+
 * Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.0.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
