@@ -2,6 +2,8 @@
 %bcond_with combined
 # Add option to build as static libraries (--without shared)
 %bcond_without shared
+# Add option to build without tools
+%bcond_without tools
 
 Name: dpdk
 Version: 2.1.0 
@@ -65,6 +67,16 @@ BuildArch: noarch
 %description doc
 API programming documentation for the Data Plane Development Kit.
 
+%if %{with tools}
+%package tools
+Summary: Tools for setting up Data Plane Development Kit environment
+Requires: %{name} = %{version}-%{release}
+Requires: kmod pciutils findutils iproute
+
+%description tools
+%{summary}
+%endif
+
 %define sdkdir  %{_libdir}/%{name}-%{version}-sdk
 %define docdir  %{_docdir}/%{name}-%{version}
 
@@ -113,6 +125,10 @@ cp -a  %{target}/.config     %{buildroot}%{sdkdir}/%{target}
 ln -s  ../../../%{_lib}/%{name}-%{version} %{buildroot}%{sdkdir}/%{target}/lib
 ln -s  ../../../include/%{name}-%{version} %{buildroot}%{sdkdir}/%{target}/include
 cp -a  mk/                   %{buildroot}%{sdkdir}
+
+%if %{with tools}
+cp -p tools/*.py             %{buildroot}%{_bindir}
+%endif
 
 # Setup RTE_SDK environment as expected by apps etc
 mkdir -p %{buildroot}/%{_sysconfdir}/profile.d
@@ -183,6 +199,11 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/%{name}-%{version}/${comblib}
 %{_libdir}/%{name}-%{version}/*.a
 %else
 %{_libdir}/%{name}-%{version}/*.so
+%endif
+
+%if %{with tools}
+%files tools
+%{_bindir}/*.py
 %endif
 
 %changelog
