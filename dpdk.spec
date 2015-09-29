@@ -128,6 +128,8 @@ cp -a  %{target}/.config     %{buildroot}%{sdkdir}/%{target}
 ln -s  ../../../%{_lib}/%{name}-%{version} %{buildroot}%{sdkdir}/%{target}/lib
 ln -s  ../../../include/%{name}-%{version} %{buildroot}%{sdkdir}/%{target}/include
 cp -a  mk/                   %{buildroot}%{sdkdir}
+mkdir -p                     %{buildroot}%{sdkdir}/scripts
+cp -a scripts/*.sh           %{buildroot}%{sdkdir}/scripts
 
 %if %{with tools}
 cp -p tools/*.py             %{buildroot}%{_bindir}
