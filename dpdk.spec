@@ -1,5 +1,3 @@
-# Add option to enable combined library (--with combined)
-%bcond_with combined
 # Add option to build as static libraries (--without shared)
 %bcond_without shared
 # Add option to build without tools
@@ -163,10 +161,11 @@ EOF
 # Fixup irregular modes in headers
 find %{buildroot}%{_includedir}/%{name}-%{version} -type f | xargs chmod 0644
 
-# Upstream has an option to build a combined library but it'll clash
-# with symbol/library versioning once it lands. Use a linker script to
-# avoid the issue.
-%if %{with combined}
+# Upstream has an option to build a combined library but it's bloatware which
+# wont work at all when library versions start moving, replace it with a
+# linker script which avoids these issues. Linking against the script during
+# build resolves into links to the actual used libraries which is just fine
+# for us, so this combined library is a build-time only construct now.
 
 %if %{with shared}
 libext=so
@@ -181,7 +180,6 @@ find %{buildroot}/%{_libdir}/%{name}-%{version}/ -name "*.${libext}" |\
 	sed -e "s:^%{buildroot}/:  :g" >> ${comblib}
 echo ")" >> ${comblib}
 install -m 644 ${comblib} %{buildroot}/%{_libdir}/%{name}-%{version}/${comblib}
-%endif
 
 %files
 # BSD
