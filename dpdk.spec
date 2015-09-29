@@ -123,6 +123,8 @@ cp -a  %{target}/doc/*       %{buildroot}%{docdir}
 # for building, arrange for that
 mkdir -p                     %{buildroot}%{sdkdir}/%{target}
 cp -a  %{target}/.config     %{buildroot}%{sdkdir}/%{target}
+ln -s  ../lib %{buildroot}%{sdkdir}/%{target}/lib
+ln -s  ../../include/%{name}-%{version} %{buildroot}%{sdkdir}/include
 ln -s  ../../../%{_lib}/%{name}-%{version} %{buildroot}%{sdkdir}/%{target}/lib
 ln -s  ../../../include/%{name}-%{version} %{buildroot}%{sdkdir}/%{target}/include
 cp -a  mk/                   %{buildroot}%{sdkdir}
