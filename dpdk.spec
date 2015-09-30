@@ -2,6 +2,8 @@
 %bcond_without shared
 # Add option to build without tools
 %bcond_without tools
+# Add option to build the PDF documentation separately (--with pdfdoc)
+%bcond_with pdfdoc
 
 Name: dpdk
 Version: 2.1.0 
@@ -34,14 +36,16 @@ ExclusiveArch: x86_64
 
 
 
-BuildRequires: kernel-headers, libpcap-devel, doxygen, texlive-dejavu
-BuildRequires: python-sphinx inkscape texlive-latex-bin-bin
+BuildRequires: kernel-headers, libpcap-devel, doxygen, python-sphinx
+%if %{with pdfdoc}
+BuildRequires: texlive-dejavu inkscape texlive-latex-bin-bin
 BuildRequires: texlive-kpathsea-bin texlive-metafont-bin texlive-cm
 BuildRequires: texlive-cmap texlive-ec texlive-babel-english
 BuildRequires: texlive-fancyhdr texlive-fancybox texlive-titlesec
 BuildRequires: texlive-framed texlive-threeparttable texlive-mdwtools
 BuildRequires: texlive-wrapfig texlive-parskip texlive-upquote texlive-multirow
 BuildRequires: texlive-helvetic texlive-times texlive-dvips
+%endif
 
 %description
 The Data Plane Development Kit is a set of libraries and drivers for
@@ -104,7 +108,7 @@ export EXTRA_CFLAGS="%{optflags} -Wformat -fPIC -Wno-error=array-bounds"
 
 make V=1 O=%{target} T=%{target} %{?_smp_mflags} config
 make V=1 O=%{target} %{?_smp_mflags}
-make V=1 O=%{target} %{?_smp_mflags} doc
+make V=1 O=%{target} %{?_smp_mflags} doc-api-html doc-guides-html %{?with_pdfdoc: guides-pdf}
 
 %install
 
