@@ -115,25 +115,37 @@ make V=1 O=%{target} %{?_smp_mflags} doc-api-html doc-guides-html %{?with_pdfdoc
 # DPDK's "make install" seems a bit broken -- do things manually...
 
 mkdir -p                     %{buildroot}%{_bindir}
-cp -a  %{target}/app/testpmd %{buildroot}%{_bindir}/testpmd-%{version}
+cp -a  %{target}/app/testpmd %{buildroot}%{_bindir}/testpmd
 mkdir -p                     %{buildroot}%{_includedir}/%{name}-%{version}
 cp -Lr  %{target}/include/*   %{buildroot}%{_includedir}/%{name}-%{version}
-mkdir -p                     %{buildroot}%{_libdir}/%{name}-%{version}
-cp -a  %{target}/lib/*       %{buildroot}%{_libdir}/%{name}-%{version}
+mkdir -p                     %{buildroot}%{_libdir}
+cp -a  %{target}/lib/*       %{buildroot}%{_libdir}
 mkdir -p                     %{buildroot}%{docdir}
 cp -a  %{target}/doc/*       %{buildroot}%{docdir}
+
+%if %{with shared}
+libext=so
+%else
+libext=a
+%endif
 
 # DPDK apps expect a particular (and somewhat peculiar) directory layout
 # for building, arrange for that
 mkdir -p                     %{buildroot}%{sdkdir}/%{target}
+mkdir -p                     %{buildroot}%{sdkdir}/lib
 cp -a  %{target}/.config     %{buildroot}%{sdkdir}/%{target}
 ln -s  ../lib %{buildroot}%{sdkdir}/%{target}/lib
 ln -s  ../../include/%{name}-%{version} %{buildroot}%{sdkdir}/include
-ln -s  ../../../%{_lib}/%{name}-%{version} %{buildroot}%{sdkdir}/%{target}/lib
 ln -s  ../../../include/%{name}-%{version} %{buildroot}%{sdkdir}/%{target}/include
 cp -a  mk/                   %{buildroot}%{sdkdir}
 mkdir -p                     %{buildroot}%{sdkdir}/scripts
 cp -a scripts/*.sh           %{buildroot}%{sdkdir}/scripts
+
+# Create library symlinks for the "sdk"
+for f in %{buildroot}/%{_libdir}/*.${libext}; do
+    l=`basename ${f}`
+    ln -s ../../${l} %{buildroot}%{sdkdir}/lib/${l}
+done
 
 %if %{with tools}
 cp -p tools/*.py             %{buildroot}%{_bindir}
@@ -173,26 +185,19 @@ find %{buildroot}%{_includedir}/%{name}-%{version} -type f | xargs chmod 0644
 # build resolves into links to the actual used libraries which is just fine
 # for us, so this combined library is a build-time only construct now.
 
-%if %{with shared}
-libext=so
-%else
-libext=a
-%endif
-
 comblib=libintel_dpdk.${libext}
 
 echo "GROUP (" > ${comblib}
-find %{buildroot}/%{_libdir}/%{name}-%{version}/ -name "*.${libext}" |\
+find %{buildroot}/%{_libdir}/ -name "*.${libext}" |\
 	sed -e "s:^%{buildroot}/:  :g" >> ${comblib}
 echo ")" >> ${comblib}
-install -m 644 ${comblib} %{buildroot}/%{_libdir}/%{name}-%{version}/${comblib}
+install -m 755 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 
 %files
 # BSD
 %{_bindir}/*
-%dir %{_libdir}/%{name}-%{version}
 %if %{with shared}
-%{_libdir}/%{name}-%{version}/*.so.*
+%{_libdir}/*.so.*
 %endif
 
 %files doc
@@ -205,9 +210,9 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/%{name}-%{version}/${comblib}
 %{sdkdir}
 %{_sysconfdir}/profile.d/dpdk-sdk-*.*
 %if ! %{with shared}
-%{_libdir}/%{name}-%{version}/*.a
+%{_libdir}/*.a
 %else
-%{_libdir}/%{name}-%{version}/*.so
+%{_libdir}/*.so
 %endif
 
 %if %{with tools}
