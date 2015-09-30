@@ -11,8 +11,7 @@ Release: 1%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.gz
 
-Patch1: dpdk-config.patch
-Patch2: enic-pun-fix.patch
+Patch1: enic-pun-fix.patch
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -84,15 +83,18 @@ Requires: kmod pciutils findutils iproute
 
 %prep
 %setup -q
-%patch1 -p2 -z .config
-%patch2 -p2 -z .enic
-
-%if %{with shared}
-sed -i 's:^CONFIG_RTE_BUILD_SHARED_LIB=n$:CONFIG_RTE_BUILD_SHARED_LIB=y:g' config/common_linuxapp
-%endif
-
+%patch1 -p2 -z .enic
 
 %build
+# set up a method for modifying the resulting .config file
+function setconf() {
+	if grep -q $1 %{target}/.config; then
+		sed -i "s:^$1=.*$:$1=$2:g" %{target}/.config
+	else
+		echo $1=$2 >> %{target}/.config
+	fi
+}
+
 # In case dpdk-devel is installed, we should ignore its hints about the SDK directories
 unset RTE_SDK RTE_INCLUDE RTE_TARGET
 
@@ -107,6 +109,22 @@ export EXTRA_CFLAGS="%{optflags} -Wformat -fPIC -Wno-error=array-bounds"
 # machines, but runtime checks in DPDK will catch those situations.
 
 make V=1 O=%{target} T=%{target} %{?_smp_mflags} config
+
+setconf CONFIG_RTE_MACHINE "default"
+setconf CONFIG_RTE_NEXT_ABI n
+
+setconf CONFIG_RTE_LIBRTE_PMD_PCAP y
+setconf CONFIG_RTE_LIBRTE_VHOST y
+
+setconf CONFIG_RTE_EAL_IGB_UIO n
+setconf CONFIG_RTE_LIBRTE_KNI n
+setconf CONFIG_RTE_KNI_KMOD n
+setconf CONFIG_RTE_KNI_PREEMPT_DEFAULT n
+
+%if %{with shared}
+setconf CONFIG_RTE_BUILD_SHARED_LIB y
+%endif
+
 make V=1 O=%{target} %{?_smp_mflags}
 make V=1 O=%{target} %{?_smp_mflags} doc-api-html doc-guides-html %{?with_pdfdoc: guides-pdf}
 
