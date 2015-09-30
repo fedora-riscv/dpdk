@@ -7,7 +7,7 @@
 
 Name: dpdk
 Version: 2.1.0 
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.gz
 
@@ -239,6 +239,10 @@ install -m 755 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %endif
 
 %changelog
+* Wed Sep 30 2015 Aaron Conole <aconole@redhat.com> - 2.1.0-2
+- Re-enable the IGB, IXGBE, I40E PMDs
+- Bring the Fedora and RHEL packages more in-line.
+
 * Wed Aug 26 2015 Neil Horman <nhorman@redhat.com> - 2.1.0-1
 - Update to latest version
 
