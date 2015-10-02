@@ -203,7 +203,7 @@ find %{buildroot}%{_includedir}/%{name}-%{version} -type f | xargs chmod 0644
 # build resolves into links to the actual used libraries which is just fine
 # for us, so this combined library is a build-time only construct now.
 
-comblib=libintel_dpdk.${libext}
+comblib=libdpdk.${libext}
 
 echo "GROUP (" > ${comblib}
 find %{buildroot}/%{_libdir}/ -name "*.${libext}" |\
