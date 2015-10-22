@@ -1,0 +1,11 @@
+diff -up dpdk-2.0.0/lib/librte_vhost/Makefile.dtneeded dpdk-2.0.0/lib/librte_vhost/Makefile
+--- dpdk-2.0.0/lib/librte_vhost/Makefile.dtneeded	2015-04-03 17:13:45.000000000 +0300
++++ dpdk-2.0.0/lib/librte_vhost/Makefile	2015-04-17 15:24:37.593834737 +0300
+@@ -44,6 +44,7 @@ CFLAGS += -I vhost_user
+ else
+ CFLAGS += -I vhost_cuse -lfuse
+ LDFLAGS += -lfuse
++LDLIBS += -lfuse
+ endif
+ 
+ ifeq ($(CONFIG_RTE_LIBRTE_VHOST_NUMA),y)

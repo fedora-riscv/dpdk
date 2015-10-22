@@ -12,6 +12,8 @@ URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.gz
 
 Patch1: enic-pun-fix.patch
+Patch2: dpdk-2.1-dtneeded.patch
+Patch3: dpdk-dtneeded-2.2-accepted.patch
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -84,6 +86,8 @@ Requires: kmod pciutils findutils iproute
 %prep
 %setup -q
 %patch1 -p2 -z .enic
+%patch2 -p1 -z .dtneeded
+%patch3 -p1 -z .accepted
 
 %build
 # set up a method for modifying the resulting .config file
@@ -209,7 +213,7 @@ echo "GROUP (" > ${comblib}
 find %{buildroot}/%{_libdir}/ -name "*.${libext}" |\
 	sed -e "s:^%{buildroot}/:  :g" >> ${comblib}
 echo ")" >> ${comblib}
-install -m 755 ${comblib} %{buildroot}/%{_libdir}/${comblib}
+install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 
 %files
 # BSD
@@ -217,6 +221,8 @@ install -m 755 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %exclude %{_bindir}/*.py
 %if %{with shared}
 %{_libdir}/*.so.*
+%{_libdir}/*_pmd_*.so
+%{_libdir}/*_pmd_*.so.*
 %endif
 
 %files doc
@@ -232,6 +238,8 @@ install -m 755 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %{_libdir}/*.a
 %else
 %{_libdir}/*.so
+%exclude %{_libdir}/*_pmd_*.so
+%exclude %{_libdir}/*_pmd_*.so.*
 %endif
 
 %if %{with tools}
