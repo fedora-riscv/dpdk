@@ -1,19 +1,23 @@
 # Add option to build as static libraries (--without shared)
 %bcond_without shared
+# Add option to build without examples
+%bcond_without examples
 # Add option to build without tools
 %bcond_without tools
 # Add option to build the PDF documentation separately (--with pdfdoc)
 %bcond_with pdfdoc
 
+
 Name: dpdk
 Version: 2.1.0 
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.gz
 
 Patch1: enic-pun-fix.patch
 Patch2: dpdk-2.1-dtneeded.patch
 Patch3: dpdk-dtneeded-2.2-accepted.patch
+Patch4: dpdk-2.1-examples.patch
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -80,6 +84,16 @@ Requires: kmod pciutils findutils iproute
 %{summary}
 %endif
 
+%if %{with examples}
+%package examples
+Summary: Data Plane Development Kit example applications
+BuildRequires: libvirt-devel
+
+%description examples
+Example applications utilizing the Data Plane Development Kit, such
+as L2 and L3 forwarding.
+%endif
+
 %define sdkdir  %{_libdir}/%{name}-%{version}-sdk
 %define docdir  %{_docdir}/%{name}-%{version}
 
@@ -88,6 +102,7 @@ Requires: kmod pciutils findutils iproute
 %patch1 -p2 -z .enic
 %patch2 -p1 -z .dtneeded
 %patch3 -p1 -z .accepted
+%patch4 -p1 -z .examples
 
 %build
 # set up a method for modifying the resulting .config file
@@ -133,6 +148,10 @@ setconf CONFIG_RTE_BUILD_SHARED_LIB y
 make V=1 O=%{target} %{?_smp_mflags}
 make V=1 O=%{target} %{?_smp_mflags} doc-api-html doc-guides-html %{?with_pdfdoc: guides-pdf}
 
+%if %{with examples}
+make V=1 O=%{target}/examples T=%{target} %{?_smp_mflags} examples
+%endif
+
 %install
 
 # DPDK's "make install" seems a bit broken -- do things manually...
@@ -172,6 +191,16 @@ done
 
 %if %{with tools}
 cp -p tools/*.py             %{buildroot}%{_bindir}
+%endif
+
+%if %{with examples}
+find %{target}/examples/ -name "*.map" | xargs rm -f
+for f in %{target}/examples/*/%{target}/app/*; do
+    bn=`basename ${f}`
+    cp -p ${f} %{buildroot}%{_bindir}/dpdk_example_${bn}
+done
+mkdir -p                     %{buildroot}%{_datadir}/%{name}-%{version}
+cp -a examples/              %{buildroot}%{_datadir}/%{name}-%{version}
 %endif
 
 # Setup RTE_SDK environment as expected by apps etc
@@ -220,6 +249,7 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 # BSD
 %{_bindir}/*
 %exclude %{_bindir}/*.py
+%exclude %{_bindir}/dpdk_example_*
 %if %{with shared}
 %{_libdir}/*.so.*
 %{_libdir}/*_pmd_*.so
@@ -248,7 +278,19 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %{_bindir}/*.py
 %endif
 
+%if %{with examples}
+%files examples
+%{_bindir}/dpdk_example_*
+%exclude %{_bindir}/*.py
+%{_datadir}/%{name}-%{version}/examples
+%endif
+
 %changelog
+* Thu Oct 22 2015 Aaron Conole <aconole@redhat.com> - 2.1.0-3
+- Include examples binaries
+- Enable the Broadcom NetXtreme II 10Gb PMD
+- Fix up linkages for the dpdk-devel package
+
 * Wed Sep 30 2015 Aaron Conole <aconole@redhat.com> - 2.1.0-2
 - Re-enable the IGB, IXGBE, I40E PMDs
 - Bring the Fedora and RHEL packages more in-line.
