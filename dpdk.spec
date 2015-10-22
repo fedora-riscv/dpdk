@@ -214,6 +214,7 @@ install -m 755 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %files
 # BSD
 %{_bindir}/*
+%exclude %{_bindir}/*.py
 %if %{with shared}
 %{_libdir}/*.so.*
 %endif
