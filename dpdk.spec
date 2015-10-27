@@ -37,7 +37,7 @@ ExclusiveArch: x86_64
 
 
 
-BuildRequires: kernel-headers, libpcap-devel, doxygen, python-sphinx
+BuildRequires: kernel-headers, libpcap-devel, doxygen, python-sphinx, zlib-devel
 %if %{with pdfdoc}
 BuildRequires: texlive-dejavu inkscape texlive-latex-bin-bin
 BuildRequires: texlive-kpathsea-bin texlive-metafont-bin texlive-cm
@@ -117,6 +117,7 @@ make V=1 O=%{target} T=%{target} %{?_smp_mflags} config
 setconf CONFIG_RTE_MACHINE "default"
 setconf CONFIG_RTE_NEXT_ABI n
 
+setconf CONFIG_RTE_LIBRTE_BNX2X_PMD y
 setconf CONFIG_RTE_LIBRTE_PMD_PCAP y
 setconf CONFIG_RTE_LIBRTE_VHOST y
 
