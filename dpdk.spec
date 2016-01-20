@@ -95,6 +95,7 @@ as L2 and L3 forwarding.
 
 %define sdkdir  %{_libdir}/%{name}-%{version}-sdk
 %define docdir  %{_docdir}/%{name}-%{version}
+%define pmddir %{_libdir}/%{name}-pmds
 
 %prep
 %setup -q
@@ -132,6 +133,9 @@ setconf CONFIG_RTE_MACHINE "default"
 setconf CONFIG_RTE_NEXT_ABI n
 setconf CONFIG_RTE_LIBRTE_CRYPTODEV n
 setconf CONFIG_RTE_LIBRTE_MBUF_OFFLOAD n
+
+# Enable automatic driver loading from this path
+setconf CONFIG_RTE_EAL_PMD_PATH \"%{pmddir}\"
 
 setconf CONFIG_RTE_LIBRTE_BNX2X_PMD y
 setconf CONFIG_RTE_LIBRTE_PMD_PCAP y
@@ -204,6 +208,13 @@ mkdir -p                     %{buildroot}%{_datadir}/%{name}-%{version}
 cp -a examples/              %{buildroot}%{_datadir}/%{name}-%{version}
 %endif
 
+# Create a driver directory with symlinks to all pmds
+mkdir -p %{buildroot}/%{pmddir}
+for f in %{buildroot}/%{_libdir}/*_pmd_*.so; do
+    bn=$(basename ${f})
+    ln -s ../${bn} %{buildroot}%{pmddir}/${bn}
+done
+
 # Setup RTE_SDK environment as expected by apps etc
 mkdir -p %{buildroot}/%{_sysconfdir}/profile.d
 cat << EOF > %{buildroot}/%{_sysconfdir}/profile.d/dpdk-sdk-%{_arch}.sh
@@ -253,8 +264,7 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %exclude %{_bindir}/dpdk_example_*
 %if %{with shared}
 %{_libdir}/*.so.*
-%{_libdir}/*_pmd_*.so
-%{_libdir}/*_pmd_*.so.*
+%{pmddir}/
 %endif
 
 %files doc
@@ -270,8 +280,6 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %{_libdir}/*.a
 %else
 %{_libdir}/*.so
-%exclude %{_libdir}/*_pmd_*.so
-%exclude %{_libdir}/*_pmd_*.so.*
 %endif
 
 %if %{with tools}
@@ -289,6 +297,8 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %changelog
 * Wed Jan 20 2016 Panu Matilainen <pmatilai@redhat.com> - 2.2.0-1
 - Update to 2.2.0
+- Establish a driver directory for automatic driver loading
+- Move the unversioned pmd symlinks from libdir -devel
 
 * Thu Oct 22 2015 Aaron Conole <aconole@redhat.com> - 2.1.0-3
 - Include examples binaries
