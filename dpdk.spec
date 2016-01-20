@@ -106,7 +106,7 @@ as L2 and L3 forwarding.
 %build
 # set up a method for modifying the resulting .config file
 function setconf() {
-	if grep -q $1 %{target}/.config; then
+	if grep -q ^$1= %{target}/.config; then
 		sed -i "s:^$1=.*$:$1=$2:g" %{target}/.config
 	else
 		echo $1=$2 >> %{target}/.config
@@ -299,6 +299,7 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 - Update to 2.2.0
 - Establish a driver directory for automatic driver loading
 - Move the unversioned pmd symlinks from libdir -devel
+- Make option matching stricter in spec setconf
 
 * Thu Oct 22 2015 Aaron Conole <aconole@redhat.com> - 2.1.0-3
 - Include examples binaries
