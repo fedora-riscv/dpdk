@@ -95,6 +95,7 @@ as L2 and L3 forwarding.
 
 %define sdkdir  %{_libdir}/%{name}-%{version}-sdk
 %define docdir  %{_docdir}/%{name}-%{version}
+%define incdir %{_includedir}/%{name}-%{version}
 %define pmddir %{_libdir}/%{name}-pmds
 
 %prep
@@ -163,8 +164,8 @@ make V=1 O=%{target}/examples T=%{target} %{?_smp_mflags} examples
 
 mkdir -p                     %{buildroot}%{_bindir}
 cp -a  %{target}/app/testpmd %{buildroot}%{_bindir}/testpmd
-mkdir -p                     %{buildroot}%{_includedir}/%{name}-%{version}
-cp -Lr  %{target}/include/*   %{buildroot}%{_includedir}/%{name}-%{version}
+mkdir -p                     %{buildroot}%{incdir}/
+cp -Lr  %{target}/include/*   %{buildroot}%{incdir}/
 mkdir -p                     %{buildroot}%{_libdir}
 cp -a  %{target}/lib/*       %{buildroot}%{_libdir}
 mkdir -p                     %{buildroot}%{docdir}
@@ -221,7 +222,7 @@ cat << EOF > %{buildroot}/%{_sysconfdir}/profile.d/dpdk-sdk-%{_arch}.sh
 if [ -z "\${RTE_SDK}" ]; then
     export RTE_SDK="%{sdkdir}"
     export RTE_TARGET="%{target}"
-    export RTE_INCLUDE="%{_includedir}/%{name}-%{version}"
+    export RTE_INCLUDE="%{incdir}"
 fi
 EOF
 
@@ -229,7 +230,7 @@ cat << EOF > %{buildroot}/%{_sysconfdir}/profile.d/dpdk-sdk-%{_arch}.csh
 if ( ! \$RTE_SDK ) then
     setenv RTE_SDK "%{sdkdir}"
     setenv RTE_TARGET "%{target}"
-    setenv RTE_INCLUDE "%{_includedir}/%{name}-%{version}"
+    setenv RTE_INCLUDE "%{incdir}"
 endif
 EOF
 
@@ -241,7 +242,7 @@ EOF
 #cp -a  tools                 %{buildroot}%{datadir}
 
 # Fixup irregular modes in headers
-find %{buildroot}%{_includedir}/%{name}-%{version} -type f | xargs chmod 0644
+find %{buildroot}%{incdir} -type f | xargs chmod 0644
 
 # Upstream has an option to build a combined library but it's bloatware which
 # wont work at all when library versions start moving, replace it with a
@@ -273,7 +274,7 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 
 %files devel
 #BSD
-%{_includedir}/*
+%{incdir}/
 %{sdkdir}
 %{_sysconfdir}/profile.d/dpdk-sdk-*.*
 %if ! %{with shared}
@@ -300,6 +301,7 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 - Establish a driver directory for automatic driver loading
 - Move the unversioned pmd symlinks from libdir -devel
 - Make option matching stricter in spec setconf
+- Spec cleanups
 
 * Thu Oct 22 2015 Aaron Conole <aconole@redhat.com> - 2.1.0-3
 - Include examples binaries
