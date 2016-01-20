@@ -9,15 +9,14 @@
 
 
 Name: dpdk
-Version: 2.1.0 
-Release: 3%{?dist}
+Version: 2.2.0
+Release: 1%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.gz
 
 Patch1: enic-pun-fix.patch
-Patch2: dpdk-2.1-dtneeded.patch
-Patch3: dpdk-dtneeded-2.2-accepted.patch
-Patch4: dpdk-2.1-examples.patch
+Patch2: dpdk-2.2-dtneeded.patch
+Patch4: dpdk-2.2-examples.patch
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -101,7 +100,6 @@ as L2 and L3 forwarding.
 %setup -q
 %patch1 -p2 -z .enic
 %patch2 -p1 -z .dtneeded
-%patch3 -p1 -z .accepted
 %patch4 -p1 -z .examples
 
 %build
@@ -130,7 +128,10 @@ export EXTRA_CFLAGS="%{optflags} -Wformat -fPIC -Wno-error=array-bounds"
 make V=1 O=%{target} T=%{target} %{?_smp_mflags} config
 
 setconf CONFIG_RTE_MACHINE "default"
+# Disable experimental features
 setconf CONFIG_RTE_NEXT_ABI n
+setconf CONFIG_RTE_LIBRTE_CRYPTODEV n
+setconf CONFIG_RTE_LIBRTE_MBUF_OFFLOAD n
 
 setconf CONFIG_RTE_LIBRTE_BNX2X_PMD y
 setconf CONFIG_RTE_LIBRTE_PMD_PCAP y
@@ -286,6 +287,9 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %endif
 
 %changelog
+* Wed Jan 20 2016 Panu Matilainen <pmatilai@redhat.com> - 2.2.0-1
+- Update to 2.2.0
+
 * Thu Oct 22 2015 Aaron Conole <aconole@redhat.com> - 2.1.0-3
 - Include examples binaries
 - Enable the Broadcom NetXtreme II 10Gb PMD
