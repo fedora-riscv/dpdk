@@ -93,9 +93,9 @@ Example applications utilizing the Data Plane Development Kit, such
 as L2 and L3 forwarding.
 %endif
 
-%define sdkdir  %{_libdir}/%{name}-%{version}-sdk
-%define docdir  %{_docdir}/%{name}-%{version}
-%define incdir %{_includedir}/%{name}-%{version}
+%define sdkdir  %{_datadir}/%{name}
+%define docdir  %{_docdir}/%{name}
+%define incdir %{_includedir}/%{name}
 %define pmddir %{_libdir}/%{name}-pmds
 
 %prep
@@ -159,45 +159,16 @@ make V=1 O=%{target}/examples T=%{target} %{?_smp_mflags} examples
 %endif
 
 %install
+# In case dpdk-devel is installed
+unset RTE_SDK RTE_INCLUDE RTE_TARGET
 
-# DPDK's "make install" seems a bit broken -- do things manually...
+%make_install O=%{target} prefix=%{_usr} libdir=%{_libdir}
 
-mkdir -p                     %{buildroot}%{_bindir}
-cp -a  %{target}/app/testpmd %{buildroot}%{_bindir}/testpmd
-mkdir -p                     %{buildroot}%{incdir}/
-cp -Lr  %{target}/include/*   %{buildroot}%{incdir}/
-mkdir -p                     %{buildroot}%{_libdir}
-cp -a  %{target}/lib/*       %{buildroot}%{_libdir}
-mkdir -p                     %{buildroot}%{docdir}
-cp -a  %{target}/doc/*       %{buildroot}%{docdir}
-
-%if %{with shared}
-libext=so
-%else
-libext=a
+%if ! %{with tools}
+rm -rf %{buildroot}%{sdkdir}/tools
+rm -rf %{buildroot}%{_sbindir}/dpdk_nic_bind
 %endif
-
-# DPDK apps expect a particular (and somewhat peculiar) directory layout
-# for building, arrange for that
-mkdir -p                     %{buildroot}%{sdkdir}/%{target}
-mkdir -p                     %{buildroot}%{sdkdir}/lib
-cp -a  %{target}/.config     %{buildroot}%{sdkdir}/%{target}
-ln -s  ../lib %{buildroot}%{sdkdir}/%{target}/lib
-ln -s  ../../include/%{name}-%{version} %{buildroot}%{sdkdir}/include
-ln -s  ../../../include/%{name}-%{version} %{buildroot}%{sdkdir}/%{target}/include
-cp -a  mk/                   %{buildroot}%{sdkdir}
-mkdir -p                     %{buildroot}%{sdkdir}/scripts
-cp -a scripts/*.sh           %{buildroot}%{sdkdir}/scripts
-
-# Create library symlinks for the "sdk"
-for f in %{buildroot}/%{_libdir}/*.${libext}; do
-    l=`basename ${f}`
-    ln -s ../../${l} %{buildroot}%{sdkdir}/lib/${l}
-done
-
-%if %{with tools}
-cp -p tools/*.py             %{buildroot}%{_bindir}
-%endif
+rm -f %{buildroot}%{sdkdir}/tools/setup.sh
 
 %if %{with examples}
 find %{target}/examples/ -name "*.map" | xargs rm -f
@@ -205,8 +176,6 @@ for f in %{target}/examples/*/%{target}/app/*; do
     bn=`basename ${f}`
     cp -p ${f} %{buildroot}%{_bindir}/dpdk_example_${bn}
 done
-mkdir -p                     %{buildroot}%{_datadir}/%{name}-%{version}
-cp -a examples/              %{buildroot}%{_datadir}/%{name}-%{version}
 %endif
 
 # Create a driver directory with symlinks to all pmds
@@ -234,22 +203,19 @@ if ( ! \$RTE_SDK ) then
 endif
 EOF
 
-# Theres no point in packaging any of the tools
-# We currently don't need the igb uio script, there
-# are several uio scripts already available
-# And the cpu_layout script functionality is
-# covered by lscpu
-#cp -a  tools                 %{buildroot}%{datadir}
-
-# Fixup irregular modes in headers
-find %{buildroot}%{incdir} -type f | xargs chmod 0644
+# Fixup target machine mismatch
+sed -i -e 's:-%{machine}-:-default-:g' %{buildroot}/%{_sysconfdir}/profile.d/dpdk-sdk*
 
 # Upstream has an option to build a combined library but it's bloatware which
 # wont work at all when library versions start moving, replace it with a
 # linker script which avoids these issues. Linking against the script during
 # build resolves into links to the actual used libraries which is just fine
 # for us, so this combined library is a build-time only construct now.
-
+%if %{with shared}
+libext=so
+%else
+libext=a
+%endif
 comblib=libdpdk.${libext}
 
 echo "GROUP (" > ${comblib}
@@ -260,9 +226,8 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 
 %files
 # BSD
-%{_bindir}/*
-%exclude %{_bindir}/*.py
-%exclude %{_bindir}/dpdk_example_*
+%{_bindir}/testpmd
+%{_bindir}/dpdk_proc_info
 %if %{with shared}
 %{_libdir}/*.so.*
 %{pmddir}/
@@ -276,6 +241,12 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 #BSD
 %{incdir}/
 %{sdkdir}
+%if %{with tools}
+%exclude %{sdkdir}/tools/
+%endif
+%if %{with examples}
+%exclude %{sdkdir}/examples/
+%endif
 %{_sysconfdir}/profile.d/dpdk-sdk-*.*
 %if ! %{with shared}
 %{_libdir}/*.a
@@ -285,14 +256,14 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 
 %if %{with tools}
 %files tools
-%{_bindir}/*.py
+%{sdkdir}/tools/
+%{_sbindir}/dpdk_nic_bind
 %endif
 
 %if %{with examples}
 %files examples
 %{_bindir}/dpdk_example_*
-%exclude %{_bindir}/*.py
-%{_datadir}/%{name}-%{version}/examples
+%doc %{sdkdir}/examples
 %endif
 
 %changelog
@@ -302,6 +273,7 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 - Move the unversioned pmd symlinks from libdir -devel
 - Make option matching stricter in spec setconf
 - Spec cleanups
+- Adopt upstream standard installation layout
 
 * Thu Oct 22 2015 Aaron Conole <aconole@redhat.com> - 2.1.0-3
 - Include examples binaries
