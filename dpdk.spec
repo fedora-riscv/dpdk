@@ -10,7 +10,7 @@
 
 Name: dpdk
 Version: 2.2.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.gz
 
@@ -41,6 +41,7 @@ ExclusiveArch: x86_64
 
 
 BuildRequires: kernel-headers, libpcap-devel, doxygen, python-sphinx, zlib-devel
+BuildRequires: numactl-devel
 %if %{with pdfdoc}
 BuildRequires: texlive-dejavu inkscape texlive-latex-bin-bin
 BuildRequires: texlive-kpathsea-bin texlive-metafont-bin texlive-cm
@@ -140,7 +141,7 @@ setconf CONFIG_RTE_EAL_PMD_PATH \"%{pmddir}\"
 
 setconf CONFIG_RTE_LIBRTE_BNX2X_PMD y
 setconf CONFIG_RTE_LIBRTE_PMD_PCAP y
-setconf CONFIG_RTE_LIBRTE_VHOST y
+setconf CONFIG_RTE_LIBRTE_VHOST_NUMA y
 
 setconf CONFIG_RTE_EAL_IGB_UIO n
 setconf CONFIG_RTE_LIBRTE_KNI n
@@ -267,6 +268,9 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %endif
 
 %changelog
+* Mon Jan 25 2016 Panu Matilainen <pmatilai@redhat.com> - 2.2.0-2
+- Enable librte_vhost NUMA-awareness
+
 * Wed Jan 20 2016 Panu Matilainen <pmatilai@redhat.com> - 2.2.0-1
 - Update to 2.2.0
 - Establish a driver directory for automatic driver loading
