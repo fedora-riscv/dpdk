@@ -10,7 +10,7 @@
 
 Name: dpdk
 Version: 2.2.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.gz
 
@@ -130,14 +130,14 @@ export EXTRA_CFLAGS="%{optflags} -Wformat -fPIC -Wno-error=array-bounds"
 
 make V=1 O=%{target} T=%{target} %{?_smp_mflags} config
 
-setconf CONFIG_RTE_MACHINE "default"
+setconf CONFIG_RTE_MACHINE '"default"'
 # Disable experimental features
 setconf CONFIG_RTE_NEXT_ABI n
 setconf CONFIG_RTE_LIBRTE_CRYPTODEV n
 setconf CONFIG_RTE_LIBRTE_MBUF_OFFLOAD n
 
 # Enable automatic driver loading from this path
-setconf CONFIG_RTE_EAL_PMD_PATH \"%{pmddir}\"
+setconf CONFIG_RTE_EAL_PMD_PATH '"%{pmddir}"'
 
 setconf CONFIG_RTE_LIBRTE_BNX2X_PMD y
 setconf CONFIG_RTE_LIBRTE_PMD_PCAP y
@@ -268,6 +268,10 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %endif
 
 %changelog
+* Tue Jan 26 2016 Panu Matilainen <pmatilai@redhat.com> - 2.2.0-3
+- Use a different quoting method to avoid messing up vim syntax highlighting
+- A string is expected as CONFIG_RTE_MACHINE value, quote it too
+
 * Mon Jan 25 2016 Panu Matilainen <pmatilai@redhat.com> - 2.2.0-2
 - Enable librte_vhost NUMA-awareness
 
