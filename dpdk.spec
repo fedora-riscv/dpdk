@@ -10,7 +10,7 @@
 
 Name: dpdk
 Version: 2.2.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.gz
 
@@ -268,6 +268,9 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %endif
 
 %changelog
+* Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2.2.0-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
 * Tue Jan 26 2016 Panu Matilainen <pmatilai@redhat.com> - 2.2.0-3
 - Use a different quoting method to avoid messing up vim syntax highlighting
 - A string is expected as CONFIG_RTE_MACHINE value, quote it too
