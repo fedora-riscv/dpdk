@@ -1,0 +1,95 @@
+diff -up ./lib/librte_lpm/rte_lpm.h.pun ./lib/librte_lpm/rte_lpm.h
+--- ./lib/librte_lpm/rte_lpm.h.pun	2015-12-15 12:06:58.000000000 -0500
++++ ./lib/librte_lpm/rte_lpm.h	2016-02-15 12:45:26.306750412 -0500
+@@ -43,6 +43,7 @@
+ #include <sys/queue.h>
+ #include <stdint.h>
+ #include <stdlib.h>
++#include <string.h>
+ #include <rte_branch_prediction.h>
+ #include <rte_byteorder.h>
+ #include <rte_memory.h>
+@@ -286,7 +287,7 @@ rte_lpm_lookup(struct rte_lpm *lpm, uint
+ 	RTE_LPM_RETURN_IF_TRUE(((lpm == NULL) || (next_hop == NULL)), -EINVAL);
+ 
+ 	/* Copy tbl24 entry */
+-	tbl_entry = *(const uint16_t *)&lpm->tbl24[tbl24_index];
++	memcpy(&tbl_entry, &lpm->tbl24[tbl24_index], sizeof(uint16_t));
+ 
+ 	/* Copy tbl8 entry (only if needed) */
+ 	if (unlikely((tbl_entry & RTE_LPM_VALID_EXT_ENTRY_BITMASK) ==
+@@ -295,7 +296,7 @@ rte_lpm_lookup(struct rte_lpm *lpm, uint
+ 		unsigned tbl8_index = (uint8_t)ip +
+ 				((uint8_t)tbl_entry * RTE_LPM_TBL8_GROUP_NUM_ENTRIES);
+ 
+-		tbl_entry = *(const uint16_t *)&lpm->tbl8[tbl8_index];
++		memcpy(&tbl_entry, &lpm->tbl8[tbl8_index], sizeof(uint16_t));
+ 	}
+ 
+ 	*next_hop = (uint8_t)tbl_entry;
+@@ -342,7 +343,7 @@ rte_lpm_lookup_bulk_func(const struct rt
+ 
+ 	for (i = 0; i < n; i++) {
+ 		/* Simply copy tbl24 entry to output */
+-		next_hops[i] = *(const uint16_t *)&lpm->tbl24[tbl24_indexes[i]];
++		memcpy(&next_hops[i], &lpm->tbl24[tbl24_indexes[i]], sizeof(uint16_t));
+ 
+ 		/* Overwrite output with tbl8 entry if needed */
+ 		if (unlikely((next_hops[i] & RTE_LPM_VALID_EXT_ENTRY_BITMASK) ==
+@@ -352,7 +353,7 @@ rte_lpm_lookup_bulk_func(const struct rt
+ 					((uint8_t)next_hops[i] *
+ 					 RTE_LPM_TBL8_GROUP_NUM_ENTRIES);
+ 
+-			next_hops[i] = *(const uint16_t *)&lpm->tbl8[tbl8_index];
++			memcpy(&next_hops[i], &lpm->tbl8[tbl8_index], sizeof(uint16_t));
+ 		}
+ 	}
+ 	return 0;
+@@ -419,13 +420,13 @@ rte_lpm_lookupx4(const struct rte_lpm *l
+ 	idx = _mm_cvtsi128_si64(i24);
+ 	i24 = _mm_srli_si128(i24, sizeof(uint64_t));
+ 
+-	tbl[0] = *(const uint16_t *)&lpm->tbl24[(uint32_t)idx];
+-	tbl[1] = *(const uint16_t *)&lpm->tbl24[idx >> 32];
++	memcpy(&tbl[0], &lpm->tbl24[(uint32_t)idx], sizeof(uint16_t));
++	memcpy(&tbl[1], &lpm->tbl24[idx >> 32], sizeof(uint16_t));
+ 
+ 	idx = _mm_cvtsi128_si64(i24);
+ 
+-	tbl[2] = *(const uint16_t *)&lpm->tbl24[(uint32_t)idx];
+-	tbl[3] = *(const uint16_t *)&lpm->tbl24[idx >> 32];
++	memcpy(&tbl[2], &lpm->tbl24[(uint32_t)idx], sizeof(uint16_t));
++	memcpy(&tbl[3], &lpm->tbl24[idx >> 32], sizeof(uint16_t));
+ 
+ 	/* get 4 indexes for tbl8[]. */
+ 	i8.x = _mm_and_si128(ip, mask8);
+@@ -446,25 +447,25 @@ rte_lpm_lookupx4(const struct rte_lpm *l
+ 			RTE_LPM_VALID_EXT_ENTRY_BITMASK)) {
+ 		i8.u32[0] = i8.u32[0] +
+ 			(uint8_t)tbl[0] * RTE_LPM_TBL8_GROUP_NUM_ENTRIES;
+-		tbl[0] = *(const uint16_t *)&lpm->tbl8[i8.u32[0]];
++		memcpy(&tbl[0], &lpm->tbl8[i8.u32[0]], sizeof(uint16_t));
+ 	}
+ 	if (unlikely((pt >> 16 & RTE_LPM_VALID_EXT_ENTRY_BITMASK) ==
+ 			RTE_LPM_VALID_EXT_ENTRY_BITMASK)) {
+ 		i8.u32[1] = i8.u32[1] +
+ 			(uint8_t)tbl[1] * RTE_LPM_TBL8_GROUP_NUM_ENTRIES;
+-		tbl[1] = *(const uint16_t *)&lpm->tbl8[i8.u32[1]];
++		memcpy(&tbl[1], &lpm->tbl8[i8.u32[1]], sizeof(uint16_t));
+ 	}
+ 	if (unlikely((pt >> 32 & RTE_LPM_VALID_EXT_ENTRY_BITMASK) ==
+ 			RTE_LPM_VALID_EXT_ENTRY_BITMASK)) {
+ 		i8.u32[2] = i8.u32[2] +
+ 			(uint8_t)tbl[2] * RTE_LPM_TBL8_GROUP_NUM_ENTRIES;
+-		tbl[2] = *(const uint16_t *)&lpm->tbl8[i8.u32[2]];
++		memcpy(&tbl[2], &lpm->tbl8[i8.u32[2]], sizeof(uint16_t));
+ 	}
+ 	if (unlikely((pt >> 48 & RTE_LPM_VALID_EXT_ENTRY_BITMASK) ==
+ 			RTE_LPM_VALID_EXT_ENTRY_BITMASK)) {
+ 		i8.u32[3] = i8.u32[3] +
+ 			(uint8_t)tbl[3] * RTE_LPM_TBL8_GROUP_NUM_ENTRIES;
+-		tbl[3] = *(const uint16_t *)&lpm->tbl8[i8.u32[3]];
++		memcpy(&tbl[3], &lpm->tbl8[i8.u32[3]], sizeof(uint16_t));
+ 	}
+ 
+ 	hop[0] = (tbl[0] & RTE_LPM_LOOKUP_SUCCESS) ? (uint8_t)tbl[0] : defv;

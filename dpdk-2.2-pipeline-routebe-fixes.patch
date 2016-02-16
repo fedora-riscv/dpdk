@@ -1,0 +1,39 @@
+diff -up ./examples/ip_pipeline/pipeline/pipeline_routing_be.c.proutebe ./examples/ip_pipeline/pipeline/pipeline_routing_be.c
+--- ./examples/ip_pipeline/pipeline/pipeline_routing_be.c.proutebe	2015-12-15 12:06:58.000000000 -0500
++++ ./examples/ip_pipeline/pipeline/pipeline_routing_be.c	2016-02-16 11:22:04.187871609 -0500
+@@ -1461,7 +1461,7 @@ pipeline_routing_msg_req_route_add_handl
+ 		uint64_t macaddr_dst;
+ 		uint64_t ethertype = ETHER_TYPE_IPv4;
+ 
+-		macaddr_dst = *((uint64_t *)&(req->data.ethernet.macaddr));
++		memcpy(&macaddr_dst, &(req->data.ethernet.macaddr), sizeof(uint64_t));
+ 		macaddr_dst = rte_bswap64(macaddr_dst << 16);
+ 
+ 		entry_arp0.slab[0] =
+@@ -1502,7 +1502,7 @@ pipeline_routing_msg_req_route_add_handl
+ 		uint64_t svlan = req->data.l2.qinq.svlan;
+ 		uint64_t cvlan = req->data.l2.qinq.cvlan;
+ 
+-		macaddr_dst = *((uint64_t *)&(req->data.ethernet.macaddr));
++		memcpy(&macaddr_dst, &(req->data.ethernet.macaddr), sizeof(uint64_t));
+ 		macaddr_dst = rte_bswap64(macaddr_dst << 16);
+ 
+ 		entry_arp0.slab[0] = rte_bswap64((svlan << 48) |
+@@ -1561,7 +1561,7 @@ pipeline_routing_msg_req_route_add_handl
+ 		uint64_t label3 = req->data.l2.mpls.labels[3];
+ 		uint32_t n_labels = req->data.l2.mpls.n_labels;
+ 
+-		macaddr_dst = *((uint64_t *)&(req->data.ethernet.macaddr));
++		memcpy(&macaddr_dst, &(req->data.ethernet.macaddr), sizeof(uint64_t));
+ 		macaddr_dst = rte_bswap64(macaddr_dst << 16);
+ 
+ 		switch (n_labels) {
+@@ -1811,7 +1811,7 @@ pipeline_routing_msg_req_arp_add_handler
+ 		return rsp;
+ 	}
+ 
+-	entry.macaddr = *((uint64_t *)&(req->macaddr));
++	memcpy(&entry.macaddr, &(req->macaddr), sizeof(uint64_t));
+ 	entry.macaddr = entry.macaddr << 16;
+ 
+ 	rsp->status = rte_pipeline_table_entry_add(p->p,

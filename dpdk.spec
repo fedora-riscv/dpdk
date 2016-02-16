@@ -10,13 +10,26 @@
 
 Name: dpdk
 Version: 2.2.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.gz
 
 Patch1: enic-pun-fix.patch
 Patch2: dpdk-2.2-dtneeded.patch
 Patch4: dpdk-2.2-examples.patch
+Patch5: dpdk-2.2-punning.patch
+Patch6: dpdk-2.2-indent.patch
+Patch7: dpdk-2.2-shift.patch 
+Patch8: dpdk-2.2-bnx2x-fixes.patch
+Patch9: dpdk-2.2-ixgbe-fixes.patch
+Patch10: dpdk-2.2-ixgbe-ethdev-fixes.patch
+Patch11: dpdk-2.2-ixgbe-pf-fixes.patch
+Patch12: dpdk-2.2-test-fixes.patch
+Patch13: dpdk-2.2-pipeline-routing-fixes.patch
+Patch14: dpdk-2.2-pipeline-common-fixes.patch
+Patch15: dpdk-2.2-pfire-fixes.patch
+Patch16: dpdk-2.2-pipeline-routebe-fixes.patch
+Patch17: dpdk-2.2-l3fwd-main.patch
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -104,6 +117,19 @@ as L2 and L3 forwarding.
 %patch1 -p2 -z .enic
 %patch2 -p1 -z .dtneeded
 %patch4 -p1 -z .examples
+%patch5 -p1 -z .pun
+%patch6 -p1 -z .indent
+%patch7 -p1 -z .shift
+%patch8 -p1 -z .bnx2x
+%patch9 -p1 -z .ixgbe
+%patch10 -p1 -z .ixgbe_ethdev
+%patch11 -p1 -z .ixgbe_pf
+%patch12 -p1 -z .test
+%patch13 -p1 -z .pipeline
+%patch14 -p1 -z .pipe_common
+%patch15 -p1 -z .pfire
+%patch16 -p1 -z .proutebe
+%patch17 -p1 -z .l3fwmain
 
 %build
 # set up a method for modifying the resulting .config file
@@ -268,6 +294,9 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %endif
 
 %changelog
+* Mon Feb 15 2016 Neil Horman <nhorman@redhat.com> 2.2.0-5
+- Fix ftbfs isssue (1307431)
+
 * Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2.2.0-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 

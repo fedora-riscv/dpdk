@@ -1,0 +1,33 @@
+diff -up ./drivers/net/e1000/em_ethdev.c.shift ./drivers/net/e1000/em_ethdev.c
+--- ./drivers/net/e1000/em_ethdev.c.shift	2016-02-15 14:26:14.678723144 -0500
++++ ./drivers/net/e1000/em_ethdev.c	2016-02-15 14:29:50.859841821 -0500
+@@ -637,13 +637,14 @@ eth_em_start(struct rte_eth_dev *dev)
+ 
+ 	if (rte_intr_allow_others(intr_handle)) {
+ 		/* check if lsc interrupt is enabled */
+-		if (dev->data->dev_conf.intr_conf.lsc != 0)
++		if (dev->data->dev_conf.intr_conf.lsc != 0) {
+ 			ret = eth_em_interrupt_setup(dev);
+ 			if (ret) {
+ 				PMD_INIT_LOG(ERR, "Unable to setup interrupts");
+ 				em_dev_clear_queues(dev);
+ 				return ret;
+ 			}
++		}
+ 	} else {
+ 		rte_intr_callback_unregister(intr_handle,
+ 						eth_em_interrupt_handler,
+diff -up ./drivers/net/e1000/igb_pf.c.shift ./drivers/net/e1000/igb_pf.c
+--- ./drivers/net/e1000/igb_pf.c.shift	2016-02-15 14:09:55.541062415 -0500
++++ ./drivers/net/e1000/igb_pf.c	2016-02-15 14:09:18.566018267 -0500
+@@ -172,8 +172,8 @@ int igb_pf_host_configure(struct rte_eth
+ 	E1000_WRITE_REG(hw, E1000_VT_CTL, vtctl);
+ 
+ 	/* Enable pools reserved to PF only */
+-	E1000_WRITE_REG(hw, E1000_VFRE, (~0) << vf_num);
+-	E1000_WRITE_REG(hw, E1000_VFTE, (~0) << vf_num);
++	E1000_WRITE_REG(hw, E1000_VFRE, UINT_MAX << vf_num);
++	E1000_WRITE_REG(hw, E1000_VFTE, UINT_MAX << vf_num);
+ 
+ 	/* PFDMA Tx General Switch Control Enables VMDQ loopback */
+ 	if (hw->mac.type == e1000_i350)

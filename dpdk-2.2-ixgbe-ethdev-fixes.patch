@@ -1,0 +1,16 @@
+diff -up ./drivers/net/ixgbe/ixgbe_ethdev.c.ixgbe_ethdev ./drivers/net/ixgbe/ixgbe_ethdev.c
+--- ./drivers/net/ixgbe/ixgbe_ethdev.c.ixgbe_ethdev	2016-02-15 15:27:26.677573547 -0500
++++ ./drivers/net/ixgbe/ixgbe_ethdev.c	2016-02-15 15:28:41.771693991 -0500
+@@ -4258,10 +4258,11 @@ ixgbe_set_pool_vlan_filter(struct rte_et
+ 	if (ixgbe_vmdq_mode_check(hw) < 0)
+ 		return (-ENOTSUP);
+ 	for (pool_idx = 0; pool_idx < ETH_64_POOLS; pool_idx++) {
+-		if (pool_mask & ((uint64_t)(1ULL << pool_idx)))
++		if (pool_mask & ((uint64_t)(1ULL << pool_idx))) {
+ 			ret = hw->mac.ops.set_vfta(hw,vlan,pool_idx,vlan_on);
+ 			if (ret < 0)
+ 				return ret;
++		}
+ 	}
+ 
+ 	return ret;

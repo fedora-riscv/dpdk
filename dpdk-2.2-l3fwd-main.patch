@@ -1,0 +1,21 @@
+diff -up ./examples/l3fwd/main.c.mainfix ./examples/l3fwd/main.c
+--- ./examples/l3fwd/main.c.mainfix	2016-02-16 11:35:19.639478702 -0500
++++ ./examples/l3fwd/main.c	2016-02-16 11:37:30.337193083 -0500
+@@ -1098,7 +1098,7 @@ l3fwd_simple_forward(struct rte_mbuf *m,
+ 		++(ipv4_hdr->hdr_checksum);
+ #endif
+ 		/* dst addr */
+-		*(uint64_t *)&eth_hdr->d_addr = dest_eth_addr[dst_port];
++		memcpy(&eth_hdr->d_addr, &dest_eth_addr[dst_port], sizeof(uint64_t));
+ 
+ 		/* src addr */
+ 		ether_addr_copy(&ports_eth_addr[dst_port], &eth_hdr->s_addr);
+@@ -1117,7 +1117,7 @@ l3fwd_simple_forward(struct rte_mbuf *m,
+ 			dst_port = portid;
+ 
+ 		/* dst addr */
+-		*(uint64_t *)&eth_hdr->d_addr = dest_eth_addr[dst_port];
++		memcpy(&eth_hdr->d_addr, &dest_eth_addr[dst_port], sizeof(uint64_t));
+ 
+ 		/* src addr */
+ 		ether_addr_copy(&ports_eth_addr[dst_port], &eth_hdr->s_addr);

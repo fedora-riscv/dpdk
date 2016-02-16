@@ -1,0 +1,15 @@
+diff -up ./app/test/test.c.test ./app/test/test.c
+--- ./app/test/test.c.test	2016-02-15 16:07:28.736385392 -0500
++++ ./app/test/test.c	2016-02-15 16:08:06.596454441 -0500
+@@ -162,9 +162,10 @@ unit_test_suite_runner(struct unit_test_
+ 	int test_success;
+ 	unsigned total = 0, executed = 0, skipped = 0, succeeded = 0, failed = 0;
+ 
+-	if (suite->suite_name)
++	if (suite->suite_name) {
+ 		printf(" + ------------------------------------------------------- +\n");
+ 		printf(" + Test Suite : %s\n", suite->suite_name);
++	}
+ 
+ 	if (suite->setup)
+ 		if (suite->setup() != 0)
