@@ -10,7 +10,7 @@
 
 Name: dpdk
 Version: 2.2.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.gz
 
@@ -20,7 +20,6 @@ Patch4: dpdk-2.2-examples.patch
 Patch5: dpdk-2.2-punning.patch
 Patch6: dpdk-2.2-indent.patch
 Patch7: dpdk-2.2-shift.patch 
-Patch8: dpdk-2.2-bnx2x-fixes.patch
 Patch9: dpdk-2.2-ixgbe-fixes.patch
 Patch10: dpdk-2.2-ixgbe-ethdev-fixes.patch
 Patch11: dpdk-2.2-ixgbe-pf-fixes.patch
@@ -120,7 +119,6 @@ as L2 and L3 forwarding.
 %patch5 -p1 -z .pun
 %patch6 -p1 -z .indent
 %patch7 -p1 -z .shift
-%patch8 -p1 -z .bnx2x
 %patch9 -p1 -z .ixgbe
 %patch10 -p1 -z .ixgbe_ethdev
 %patch11 -p1 -z .ixgbe_pf
@@ -294,6 +292,9 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %endif
 
 %changelog
+* Tue Mar 01 2016 Panu Matilainen <pmatilai@redhat.com> - 2.2.0-6
+- Drop no longer needed bnx2x patch, the gcc false positive has been fixed
+
 * Mon Feb 15 2016 Neil Horman <nhorman@redhat.com> 2.2.0-5
 - Fix ftbfs isssue (1307431)
 
