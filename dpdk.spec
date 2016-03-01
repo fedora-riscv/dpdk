@@ -14,7 +14,6 @@ Release: 6%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.gz
 
-Patch1: enic-pun-fix.patch
 Patch2: dpdk-2.2-dtneeded.patch
 Patch4: dpdk-2.2-examples.patch
 Patch5: dpdk-2.2-punning.patch
@@ -113,7 +112,6 @@ as L2 and L3 forwarding.
 
 %prep
 %setup -q
-%patch1 -p2 -z .enic
 %patch2 -p1 -z .dtneeded
 %patch4 -p1 -z .examples
 %patch5 -p1 -z .pun
@@ -142,7 +140,9 @@ function setconf() {
 # In case dpdk-devel is installed, we should ignore its hints about the SDK directories
 unset RTE_SDK RTE_INCLUDE RTE_TARGET
 
-export EXTRA_CFLAGS="%{optflags} -Wformat -fPIC"
+# Avoid appending second -Wall to everything, it breaks upstream warning
+# disablers in makefiles
+export EXTRA_CFLAGS="$(echo %{optflags} | sed -e 's:-Wall::g') -Wformat -fPIC"
 
 # DPDK defaults to using builder-specific compiler flags.  However,
 # the config has been changed by specifying CONFIG_RTE_MACHINE=default
@@ -293,6 +293,7 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 * Tue Mar 01 2016 Panu Matilainen <pmatilai@redhat.com> - 2.2.0-6
 - Drop no longer needed bnx2x patch, the gcc false positive has been fixed
 - Drop no longer needed -Wno-error=array-bounds from CFLAGS
+- Eliminate the need for the enic patch by eliminating second -Wall from CFLAGS
 
 * Mon Feb 15 2016 Neil Horman <nhorman@redhat.com> 2.2.0-5
 - Fix ftbfs isssue (1307431)
