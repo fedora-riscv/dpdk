@@ -10,15 +10,3 @@ diff -up dpdk-2.2.0/examples/ip_pipeline/Makefile.examples dpdk-2.2.0/examples/i
  CFLAGS += $(WERROR_FLAGS) -Wno-error=unused-function -Wno-error=unused-variable
  
  include $(RTE_SDK)/mk/rte.extapp.mk
-diff -up dpdk-2.2.0/examples/Makefile.examples dpdk-2.2.0/examples/Makefile
---- dpdk-2.2.0/examples/Makefile.examples	2015-12-15 19:06:58.000000000 +0200
-+++ dpdk-2.2.0/examples/Makefile	2016-01-20 14:28:43.280070250 +0200
-@@ -76,7 +76,7 @@ DIRS-$(CONFIG_RTE_LIBRTE_VHOST) += vhost
- DIRS-$(CONFIG_RTE_LIBRTE_XEN_DOM0) += vhost_xen
- DIRS-y += vmdq
- DIRS-y += vmdq_dcb
--DIRS-$(CONFIG_RTE_LIBRTE_POWER) += vm_power_manager
-+#DIRS-$(CONFIG_RTE_LIBRTE_POWER) += vm_power_manager
- DIRS-$(CONFIG_RTE_LIBRTE_CRYPTODEV) += l2fwd-crypto
- 
- include $(RTE_SDK)/mk/rte.extsubdir.mk

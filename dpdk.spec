@@ -157,6 +157,8 @@ setconf CONFIG_RTE_MACHINE '"default"'
 setconf CONFIG_RTE_NEXT_ABI n
 setconf CONFIG_RTE_LIBRTE_CRYPTODEV n
 setconf CONFIG_RTE_LIBRTE_MBUF_OFFLOAD n
+# Disable unmaintained features
+setconf CONFIG_RTE_LIBRTE_POWER n
 
 # Enable automatic driver loading from this path
 setconf CONFIG_RTE_EAL_PMD_PATH '"%{pmddir}"'
@@ -294,6 +296,7 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 - Drop no longer needed bnx2x patch, the gcc false positive has been fixed
 - Drop no longer needed -Wno-error=array-bounds from CFLAGS
 - Eliminate the need for the enic patch by eliminating second -Wall from CFLAGS
+- Disable unmaintained librte_power as per upstream recommendation
 
 * Mon Feb 15 2016 Neil Horman <nhorman@redhat.com> 2.2.0-5
 - Fix ftbfs isssue (1307431)
