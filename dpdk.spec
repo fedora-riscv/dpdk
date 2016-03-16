@@ -10,7 +10,7 @@
 
 Name: dpdk
 Version: 2.2.0
-Release: 6%{?dist}
+Release: 7%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.gz
 
@@ -165,7 +165,8 @@ setconf CONFIG_RTE_EAL_PMD_PATH '"%{pmddir}"'
 
 setconf CONFIG_RTE_LIBRTE_BNX2X_PMD y
 setconf CONFIG_RTE_LIBRTE_PMD_PCAP y
-setconf CONFIG_RTE_LIBRTE_VHOST_NUMA y
+# Temporarily disabled
+setconf CONFIG_RTE_LIBRTE_VHOST_NUMA n
 
 setconf CONFIG_RTE_EAL_IGB_UIO n
 setconf CONFIG_RTE_LIBRTE_KNI n
@@ -292,6 +293,9 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %endif
 
 %changelog
+* Wed Mar 16 2016 Panu Matilainen <pmatilai@redhat.com> - 2.2.0-7
+- vhost numa code causes crashes, disable until upstream fixes
+
 * Tue Mar 01 2016 Panu Matilainen <pmatilai@redhat.com> - 2.2.0-6
 - Drop no longer needed bnx2x patch, the gcc false positive has been fixed
 - Drop no longer needed -Wno-error=array-bounds from CFLAGS
