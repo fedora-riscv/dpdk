@@ -43,13 +43,21 @@ License: BSD and LGPLv2 and GPLv2
 # other techniques, carefully crafted x86 assembly instructions.  As such it
 # currently (and likely never will) run on non-x86 platforms
 #
-ExclusiveArch: x86_64 
+ExclusiveArch: x86_64 i686
 
-%define machine native
+# machine_arch maps between rpm and dpdk arch name, often same as _target_cpu
+%define machine_arch %{_target_cpu}
+# machine_tmpl is the config template machine name, often "native"
+%define machine_tmpl native
+# machine is the actual machine name used in the dpdk make system
+%ifarch x86_64
+%define machine default
+%endif
+%ifarch i686
+%define machine atm
+%endif
 
-%define target x86_64-%{machine}-linuxapp-gcc
-
-
+%define target %{machine_arch}-%{machine_tmpl}-linuxapp-gcc
 
 BuildRequires: kernel-headers, libpcap-devel, doxygen, python-sphinx, zlib-devel
 BuildRequires: numactl-devel
@@ -141,8 +149,9 @@ function setconf() {
 unset RTE_SDK RTE_INCLUDE RTE_TARGET
 
 # Avoid appending second -Wall to everything, it breaks upstream warning
-# disablers in makefiles
-export EXTRA_CFLAGS="$(echo %{optflags} | sed -e 's:-Wall::g') -Wformat -fPIC"
+# disablers in makefiles. Strip expclit -march= from optflags since they
+# will only guarantee build failures, DPDK is picky with that.
+export EXTRA_CFLAGS="$(echo %{optflags} | sed -e 's:-Wall::g' -e 's:-march=[[:alnum:]]* ::g') -Wformat -fPIC"
 
 # DPDK defaults to using builder-specific compiler flags.  However,
 # the config has been changed by specifying CONFIG_RTE_MACHINE=default
@@ -152,7 +161,7 @@ export EXTRA_CFLAGS="$(echo %{optflags} | sed -e 's:-Wall::g') -Wformat -fPIC"
 
 make V=1 O=%{target} T=%{target} %{?_smp_mflags} config
 
-setconf CONFIG_RTE_MACHINE '"default"'
+setconf CONFIG_RTE_MACHINE '"%{machine}"'
 # Disable experimental features
 setconf CONFIG_RTE_NEXT_ABI n
 setconf CONFIG_RTE_LIBRTE_CRYPTODEV n
@@ -230,7 +239,7 @@ endif
 EOF
 
 # Fixup target machine mismatch
-sed -i -e 's:-%{machine}-:-default-:g' %{buildroot}/%{_sysconfdir}/profile.d/dpdk-sdk*
+sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profile.d/dpdk-sdk*
 
 # Upstream has an option to build a combined library but it's bloatware which
 # wont work at all when library versions start moving, replace it with a
@@ -295,6 +304,7 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %changelog
 * Wed Mar 16 2016 Panu Matilainen <pmatilai@redhat.com> - 2.2.0-7
 - vhost numa code causes crashes, disable until upstream fixes
+- Generalize target/machine/etc macros to enable i686 builds
 
 * Tue Mar 01 2016 Panu Matilainen <pmatilai@redhat.com> - 2.2.0-6
 - Drop no longer needed bnx2x patch, the gcc false positive has been fixed
