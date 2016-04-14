@@ -7,27 +7,11 @@
 # Add option to build the PDF documentation separately (--with pdfdoc)
 %bcond_with pdfdoc
 
-
 Name: dpdk
-Version: 2.2.0
-Release: 7%{?dist}
+Version: 16.04
+Release: 1%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.gz
-
-Patch2: dpdk-2.2-dtneeded.patch
-Patch4: dpdk-2.2-examples.patch
-Patch5: dpdk-2.2-punning.patch
-Patch6: dpdk-2.2-indent.patch
-Patch7: dpdk-2.2-shift.patch 
-Patch9: dpdk-2.2-ixgbe-fixes.patch
-Patch10: dpdk-2.2-ixgbe-ethdev-fixes.patch
-Patch11: dpdk-2.2-ixgbe-pf-fixes.patch
-Patch12: dpdk-2.2-test-fixes.patch
-Patch13: dpdk-2.2-pipeline-routing-fixes.patch
-Patch14: dpdk-2.2-pipeline-common-fixes.patch
-Patch15: dpdk-2.2-pfire-fixes.patch
-Patch16: dpdk-2.2-pipeline-routebe-fixes.patch
-Patch17: dpdk-2.2-l3fwd-main.patch
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -120,20 +104,6 @@ as L2 and L3 forwarding.
 
 %prep
 %setup -q
-%patch2 -p1 -z .dtneeded
-%patch4 -p1 -z .examples
-%patch5 -p1 -z .pun
-%patch6 -p1 -z .indent
-%patch7 -p1 -z .shift
-%patch9 -p1 -z .ixgbe
-%patch10 -p1 -z .ixgbe_ethdev
-%patch11 -p1 -z .ixgbe_pf
-%patch12 -p1 -z .test
-%patch13 -p1 -z .pipeline
-%patch14 -p1 -z .pipe_common
-%patch15 -p1 -z .pfire
-%patch16 -p1 -z .proutebe
-%patch17 -p1 -z .l3fwmain
 
 %build
 # set up a method for modifying the resulting .config file
@@ -174,8 +144,7 @@ setconf CONFIG_RTE_EAL_PMD_PATH '"%{pmddir}"'
 
 setconf CONFIG_RTE_LIBRTE_BNX2X_PMD y
 setconf CONFIG_RTE_LIBRTE_PMD_PCAP y
-# Temporarily disabled
-setconf CONFIG_RTE_LIBRTE_VHOST_NUMA n
+setconf CONFIG_RTE_LIBRTE_VHOST_NUMA y
 
 setconf CONFIG_RTE_EAL_IGB_UIO n
 setconf CONFIG_RTE_LIBRTE_KNI n
@@ -241,24 +210,6 @@ EOF
 # Fixup target machine mismatch
 sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profile.d/dpdk-sdk*
 
-# Upstream has an option to build a combined library but it's bloatware which
-# wont work at all when library versions start moving, replace it with a
-# linker script which avoids these issues. Linking against the script during
-# build resolves into links to the actual used libraries which is just fine
-# for us, so this combined library is a build-time only construct now.
-%if %{with shared}
-libext=so
-%else
-libext=a
-%endif
-comblib=libdpdk.${libext}
-
-echo "GROUP (" > ${comblib}
-find %{buildroot}/%{_libdir}/ -name "*.${libext}" |\
-	sed -e "s:^%{buildroot}/:  :g" >> ${comblib}
-echo ")" >> ${comblib}
-install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
-
 %files
 # BSD
 %{_bindir}/testpmd
@@ -302,6 +253,12 @@ install -m 644 ${comblib} %{buildroot}/%{_libdir}/${comblib}
 %endif
 
 %changelog
+* Thu Apr 14 2016 Panu Matilainen <pmatilai@redhat.com> - 16.04-1
+- Update to 16.04
+- Drop all patches, they're not needed anymore
+- Drop linker script generation, its upstream now
+- Enable vhost numa support again
+
 * Wed Mar 16 2016 Panu Matilainen <pmatilai@redhat.com> - 2.2.0-7
 - vhost numa code causes crashes, disable until upstream fixes
 - Generalize target/machine/etc macros to enable i686 builds
