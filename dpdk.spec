@@ -8,10 +8,10 @@
 %bcond_with pdfdoc
 
 Name: dpdk
-Version: 16.04
+Version: 16.07
 Release: 1%{?dist}
 URL: http://dpdk.org
-Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.gz
+Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -213,7 +213,7 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %files
 # BSD
 %{_bindir}/testpmd
-%{_bindir}/dpdk_proc_info
+%{_bindir}/dpdk-procinfo
 %if %{with shared}
 %{_libdir}/*.so.*
 %{pmddir}/
@@ -243,7 +243,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %if %{with tools}
 %files tools
 %{sdkdir}/tools/
-%{_sbindir}/dpdk_nic_bind
+%{_sbindir}/dpdk-devbind
+%{_bindir}/dpdk-pdump
+%{_bindir}/dpdk-pmdinfo
 %endif
 
 %if %{with examples}
@@ -253,6 +255,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Tue Aug 02 2016 Neil Horman <nhorman@redhat.com> - 16.07-1
+* Update to 16.07
+
 * Thu Apr 14 2016 Panu Matilainen <pmatilai@redhat.com> - 16.04-1
 - Update to 16.04
 - Drop all patches, they're not needed anymore
