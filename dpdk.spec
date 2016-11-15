@@ -8,7 +8,7 @@
 %bcond_with pdfdoc
 
 Name: dpdk
-Version: 16.07
+Version: 16.11
 Release: 1%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
@@ -255,6 +255,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Tue Nov 15 2016 Neil Horman <nhorman@redhat.com> - 16.11-1
+- Update to 16.11
+
 * Tue Aug 02 2016 Neil Horman <nhorman@redhat.com> - 16.07-1
 * Update to 16.07
 
