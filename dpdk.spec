@@ -169,9 +169,6 @@ setconf CONFIG_RTE_KNI_PREEMPT_DEFAULT n
 %if %{with shared}
 setconf CONFIG_RTE_BUILD_SHARED_LIB y
 %endif
-#%ifarch ppc64le
-#setconf CONFIG_RTE_LIBRTE_PMD_RING n
-#%endif
 
 make V=1 O=%{target} %{?_smp_mflags}
 make V=1 O=%{target} %{?_smp_mflags} doc-api-html doc-guides-html %{?with_pdfdoc: guides-pdf}
