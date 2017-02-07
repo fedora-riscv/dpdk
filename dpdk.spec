@@ -9,9 +9,10 @@
 
 Name: dpdk
 Version: 16.11
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
+Patch0: test-app-libfix.patch
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -24,22 +25,35 @@ License: BSD and LGPLv2 and GPLv2
 
 #
 # The DPDK is designed to optimize througput of network traffic using, among
-# other techniques, carefully crafted x86 assembly instructions.  As such it
-# currently (and likely never will) run on non-x86 platforms
+# other techniques, carefully crafted assembly instructions.  As such it
+# needs extensive work to port it to other architectures.
 #
-ExclusiveArch: x86_64 i686
+ExclusiveArch: x86_64 i686 aarch64 ppc64le
 
 # machine_arch maps between rpm and dpdk arch name, often same as _target_cpu
-%define machine_arch %{_target_cpu}
 # machine_tmpl is the config template machine name, often "native"
-%define machine_tmpl native
 # machine is the actual machine name used in the dpdk make system
 %ifarch x86_64
+%define machine_arch x86_64
+%define machine_tmpl native
 %define machine default
 %endif
 %ifarch i686
+%define machine_arch i686
+%define machine_tmpl native
 %define machine atm
 %endif
+%ifarch aarch64
+%define machine_arch arm64
+%define machine_tmpl armv8a
+%define machine armv8a
+%endif
+%ifarch ppc64le
+%define machine_arch ppc_64
+%define machine_tmpl power8
+%define machine power8
+%endif
+
 
 %define target %{machine_arch}-%{machine_tmpl}-linuxapp-gcc
 
@@ -104,6 +118,7 @@ as L2 and L3 forwarding.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 # set up a method for modifying the resulting .config file
@@ -154,6 +169,9 @@ setconf CONFIG_RTE_KNI_PREEMPT_DEFAULT n
 %if %{with shared}
 setconf CONFIG_RTE_BUILD_SHARED_LIB y
 %endif
+#%ifarch ppc64le
+#setconf CONFIG_RTE_LIBRTE_PMD_RING n
+#%endif
 
 make V=1 O=%{target} %{?_smp_mflags}
 make V=1 O=%{target} %{?_smp_mflags} doc-api-html doc-guides-html %{?with_pdfdoc: guides-pdf}
@@ -255,6 +273,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Mon Feb 06 2017 Yaakov Selkowitz <yselkowi@redhat.com> - 16.11-2
+- Enable aarch64, ppc64le (#1419731)
+
 * Tue Nov 15 2016 Neil Horman <nhorman@redhat.com> - 16.11-1
 - Update to 16.11
 
