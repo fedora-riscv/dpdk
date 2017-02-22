@@ -8,11 +8,12 @@
 %bcond_with pdfdoc
 
 Name: dpdk
-Version: 16.11
-Release: 2%{?dist}
+Version: 17.02
+Release: 1%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
-Patch0: test-app-libfix.patch
+Patch1: lengthfix.patch
+Patch2: makefix.patch
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -118,7 +119,8 @@ as L2 and L3 forwarding.
 
 %prep
 %setup -q
-%patch0 -p1
+%patch1 -p1 -b .lengthfix
+%patch2 -p1 -b .makefix
 
 %build
 # set up a method for modifying the resulting .config file
@@ -149,7 +151,6 @@ make V=1 O=%{target} T=%{target} %{?_smp_mflags} config
 setconf CONFIG_RTE_MACHINE '"%{machine}"'
 # Disable experimental features
 setconf CONFIG_RTE_NEXT_ABI n
-setconf CONFIG_RTE_LIBRTE_CRYPTODEV n
 setconf CONFIG_RTE_LIBRTE_MBUF_OFFLOAD n
 # Disable unmaintained features
 setconf CONFIG_RTE_LIBRTE_POWER n
@@ -170,7 +171,7 @@ setconf CONFIG_RTE_KNI_PREEMPT_DEFAULT n
 setconf CONFIG_RTE_BUILD_SHARED_LIB y
 %endif
 
-make V=1 O=%{target} %{?_smp_mflags}
+make V=1 O=%{target} %{?_smp_mflags} -Wimplicit-fallthrough=0
 make V=1 O=%{target} %{?_smp_mflags} doc-api-html doc-guides-html %{?with_pdfdoc: guides-pdf}
 
 %if %{with examples}
@@ -184,10 +185,11 @@ unset RTE_SDK RTE_INCLUDE RTE_TARGET
 %make_install O=%{target} prefix=%{_usr} libdir=%{_libdir}
 
 %if ! %{with tools}
-rm -rf %{buildroot}%{sdkdir}/tools
+rm -rf %{buildroot}%{sdkdir}/devtools
 rm -rf %{buildroot}%{_sbindir}/dpdk_nic_bind
+rm -rf %{buildroot}%{_bindir}/dpdk-test-crypto-perf
 %endif
-rm -f %{buildroot}%{sdkdir}/tools/setup.sh
+rm -f %{buildroot}%{sdkdir}/devtools/setup.sh
 
 %if %{with examples}
 find %{target}/examples/ -name "*.map" | xargs rm -f
@@ -243,7 +245,7 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %{incdir}/
 %{sdkdir}
 %if %{with tools}
-%exclude %{sdkdir}/tools/
+%exclude %{sdkdir}/devtools/
 %endif
 %if %{with examples}
 %exclude %{sdkdir}/examples/
@@ -257,10 +259,11 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 
 %if %{with tools}
 %files tools
-%{sdkdir}/tools/
+#%{sdkdir}/devtools/
 %{_sbindir}/dpdk-devbind
 %{_bindir}/dpdk-pdump
 %{_bindir}/dpdk-pmdinfo
+%{_bindir}/dpdk-test-crypto-perf
 %endif
 
 %if %{with examples}
@@ -270,6 +273,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Wed Feb 15 2017 Fedora Release Monitoring  <release-monitoring@fedoraproject.org> - 17.02-1
+- Update to 17.02 (#1422285)
+
 * Mon Feb 06 2017 Yaakov Selkowitz <yselkowi@redhat.com> - 16.11-2
 - Enable aarch64, ppc64le (#1419731)
 
