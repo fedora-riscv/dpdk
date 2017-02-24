@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 17.02
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
 Patch1: lengthfix.patch
@@ -76,7 +76,7 @@ fast packet processing in the user space.
 
 %package devel
 Summary: Data Plane Development Kit development files
-Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{version}-%{release} python
 %if ! %{with shared}
 Provides: %{name}-static = %{version}-%{release}
 %endif
@@ -273,6 +273,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Fri Feb 24 2017 Neil Horman <nhorman@redhat.com> - 17-02-2
+- Add python dependency (#1426561)
+
 * Wed Feb 15 2017 Fedora Release Monitoring  <release-monitoring@fedoraproject.org> - 17.02-1
 - Update to 17.02 (#1422285)
 
