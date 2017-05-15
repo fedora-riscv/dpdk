@@ -8,12 +8,11 @@
 %bcond_with pdfdoc
 
 Name: dpdk
-Version: 17.02
-Release: 2%{?dist}
+Version: 17.05
+Release: 1%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
 Patch1: lengthfix.patch
-Patch2: makefix.patch
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -120,7 +119,6 @@ as L2 and L3 forwarding.
 %prep
 %setup -q
 %patch1 -p1 -b .lengthfix
-%patch2 -p1 -b .makefix
 
 %build
 # set up a method for modifying the resulting .config file
@@ -273,6 +271,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Mon May 15 2017 Neil Horman <nhorman@redhat.com> - 17.05-1
+- Update to latest upstream
+
 * Fri Feb 24 2017 Neil Horman <nhorman@redhat.com> - 17-02-2
 - Add python dependency (#1426561)
 
