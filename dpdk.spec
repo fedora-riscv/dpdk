@@ -9,10 +9,11 @@
 
 Name: dpdk
 Version: 17.05
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
 Patch1: lengthfix.patch
+Patch2: 5b45c30a00ecbd5181e5679b13ca059bcd761ead.patch
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -119,6 +120,7 @@ as L2 and L3 forwarding.
 %prep
 %setup -q
 %patch1 -p1 -b .lengthfix
+%patch2 -p1 -b .5b45c30
 
 %build
 # set up a method for modifying the resulting .config file
@@ -271,6 +273,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Mon Jul 31 2017 Neil Horman <nhorman@redhat.com> - 17.05-2
+- backport rte_eth_tx_done_cleanup map fix (#1476341)
+
 * Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 17.05-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
 
