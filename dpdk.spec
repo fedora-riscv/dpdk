@@ -8,12 +8,10 @@
 %bcond_with pdfdoc
 
 Name: dpdk
-Version: 17.08
+Version: 17.11
 Release: 1%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
-Patch1: lengthfix.patch
-#Patch2: 5b45c30a00ecbd5181e5679b13ca059bcd761ead.patch
 
 
 Summary: Set of libraries and drivers for fast packet processing
@@ -120,8 +118,6 @@ as L2 and L3 forwarding.
 
 %prep
 %setup -q
-%patch1 -p1 -b .lengthfix
-#%patch2 -p1 -b .5b45c30
 
 %build
 # set up a method for modifying the resulting .config file
@@ -169,6 +165,8 @@ setconf CONFIG_RTE_KNI_KMOD n
 setconf CONFIG_RTE_KNI_PREEMPT_DEFAULT n
 
 setconf CONFIG_RTE_APP_EVENTDEV n
+
+setconf CONFIG_RTE_LIBRTE_NFP_PMD y
 
 %if %{with shared}
 setconf CONFIG_RTE_BUILD_SHARED_LIB y
@@ -276,6 +274,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Thu Nov 16 2017 Neil Horman <nhorman@redhat.com> - 17.11-1
+- Update to latest upstream
+
 * Wed Aug 09 2017 Neil Horman <nhorman@redhat.com> - 17.08-1
 - Update to latest upstream
 
