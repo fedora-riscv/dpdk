@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 17.11
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
 
@@ -95,7 +95,7 @@ API programming documentation for the Data Plane Development Kit.
 %package tools
 Summary: Tools for setting up Data Plane Development Kit environment
 Requires: %{name} = %{version}-%{release}
-Requires: kmod pciutils findutils iproute
+Requires: kmod pciutils findutils iproute python-pyelftools
 
 %description tools
 %{summary}
@@ -186,11 +186,11 @@ unset RTE_SDK RTE_INCLUDE RTE_TARGET
 %make_install O=%{target} prefix=%{_usr} libdir=%{_libdir}
 
 %if ! %{with tools}
-rm -rf %{buildroot}%{sdkdir}/devtools
+rm -rf %{buildroot}%{sdkdir}/usertools
 rm -rf %{buildroot}%{_sbindir}/dpdk_nic_bind
 rm -rf %{buildroot}%{_bindir}/dpdk-test-crypto-perf
 %endif
-rm -f %{buildroot}%{sdkdir}/devtools/setup.sh
+rm -f %{buildroot}%{sdkdir}/usertools/dpdk-setup.sh
 
 %if %{with examples}
 find %{target}/examples/ -name "*.map" | xargs rm -f
@@ -202,7 +202,7 @@ done
 
 # Create a driver directory with symlinks to all pmds
 mkdir -p %{buildroot}/%{pmddir}
-for f in %{buildroot}/%{_libdir}/*_pmd_*.so; do
+for f in %{buildroot}/%{_libdir}/*_pmd_*.so.*; do
     bn=$(basename ${f})
     ln -s ../${bn} %{buildroot}%{pmddir}/${bn}
 done
@@ -246,7 +246,7 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %{incdir}/
 %{sdkdir}
 %if %{with tools}
-%exclude %{sdkdir}/devtools/
+%exclude %{sdkdir}/usertools/
 %endif
 %if %{with examples}
 %exclude %{sdkdir}/examples/
@@ -260,7 +260,7 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 
 %if %{with tools}
 %files tools
-#%{sdkdir}/devtools/
+%{sdkdir}/usertools/
 %{_sbindir}/dpdk-devbind
 %{_bindir}/dpdk-pdump
 %{_bindir}/dpdk-pmdinfo
@@ -274,6 +274,11 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Thu Nov 30 2017 Neil Horman <nhorman@redhat.com> - 17.11-2
+- Fix dangling symlinks (bz 1519322)
+- Fix devtools->usertools conversion (bz 1519332)
+- Fix python-pyelftools requirement (bz 1519336)
+
 * Thu Nov 16 2017 Neil Horman <nhorman@redhat.com> - 17.11-1
 - Update to latest upstream
 
