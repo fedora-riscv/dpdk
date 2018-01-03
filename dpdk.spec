@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 17.11
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
 
@@ -57,7 +57,7 @@ ExclusiveArch: x86_64 i686 aarch64 ppc64le
 
 %define target %{machine_arch}-%{machine_tmpl}-linuxapp-gcc
 
-BuildRequires: kernel-headers, libpcap-devel, doxygen, python-sphinx, zlib-devel
+BuildRequires: kernel-headers, libpcap-devel, doxygen, python2-sphinx, zlib-devel
 BuildRequires: numactl-devel
 %if %{with pdfdoc}
 BuildRequires: texlive-dejavu inkscape texlive-latex-bin-bin
@@ -75,7 +75,7 @@ fast packet processing in the user space.
 
 %package devel
 Summary: Data Plane Development Kit development files
-Requires: %{name}%{?_isa} = %{version}-%{release} python
+Requires: %{name}%{?_isa} = %{version}-%{release} python2
 %if ! %{with shared}
 Provides: %{name}-static = %{version}-%{release}
 %endif
@@ -95,7 +95,7 @@ API programming documentation for the Data Plane Development Kit.
 %package tools
 Summary: Tools for setting up Data Plane Development Kit environment
 Requires: %{name} = %{version}-%{release}
-Requires: kmod pciutils findutils iproute python-pyelftools
+Requires: kmod pciutils findutils iproute python2-pyelftools
 
 %description tools
 %{summary}
@@ -274,6 +274,10 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Wed Jan 03 2018 Iryna Shcherbina <ishcherb@redhat.com> - 17.11-3
+- Update Python 2 dependency declarations to new packaging standards
+  (See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3)
+
 * Thu Nov 30 2017 Neil Horman <nhorman@redhat.com> - 17.11-2
 - Fix dangling symlinks (bz 1519322)
 - Fix devtools->usertools conversion (bz 1519332)
