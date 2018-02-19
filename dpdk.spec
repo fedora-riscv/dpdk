@@ -57,6 +57,7 @@ ExclusiveArch: x86_64 i686 aarch64 ppc64le
 
 %define target %{machine_arch}-%{machine_tmpl}-linuxapp-gcc
 
+BuildRequires: gcc
 BuildRequires: kernel-headers, libpcap-devel, doxygen, python2-sphinx, zlib-devel
 BuildRequires: numactl-devel
 %if %{with pdfdoc}
