@@ -8,10 +8,11 @@
 %bcond_with pdfdoc
 
 Name: dpdk
-Version: 17.11
-Release: 4%{?dist}
+Version: 18.02 
+Release: 1%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
+Patch0: dpdk-dpaa-build.patch
 
 
 Summary: Set of libraries and drivers for fast packet processing
@@ -119,6 +120,7 @@ as L2 and L3 forwarding.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 # set up a method for modifying the resulting .config file
@@ -168,6 +170,12 @@ setconf CONFIG_RTE_KNI_PREEMPT_DEFAULT n
 setconf CONFIG_RTE_APP_EVENTDEV n
 
 setconf CONFIG_RTE_LIBRTE_NFP_PMD y
+
+%ifarch aarch64
+setconf CONFIG_RTE_LIBRTE_DPAA_BUS y
+setconf CONFIG_RTE_LIBRTE_DPAA_MEMPOOL y
+setconf CONFIG_RTE_LIBRTE_DPAA_PMD y
+%endif
 
 %if %{with shared}
 setconf CONFIG_RTE_BUILD_SHARED_LIB y
@@ -232,6 +240,7 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %files
 # BSD
 %{_bindir}/testpmd
+%{_bindir}/testbbdev
 %{_bindir}/dpdk-procinfo
 %if %{with shared}
 %{_libdir}/*.so.*
@@ -275,6 +284,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Mon Feb 19 2018 Neil Horman <nhorman@redhat.com> - 18.02-1
+- update to latest upstream
+
 * Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 17.11-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 
