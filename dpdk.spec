@@ -9,10 +9,11 @@
 
 Name: dpdk
 Version: 18.02 
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
 Patch0: dpdk-dpaa-build.patch
+Patch1: dpdk-extra-ldflags.patch
 
 
 Summary: Set of libraries and drivers for fast packet processing
@@ -138,7 +139,12 @@ unset RTE_SDK RTE_INCLUDE RTE_TARGET
 # Avoid appending second -Wall to everything, it breaks upstream warning
 # disablers in makefiles. Strip expclit -march= from optflags since they
 # will only guarantee build failures, DPDK is picky with that.
-export EXTRA_CFLAGS="$(echo %{optflags} | sed -e 's:-Wall::g' -e 's:-march=[[:alnum:]]* ::g') -Wformat -fPIC"
+# Note: _hardening_ldflags has to go on the extra cflags line because dpdk is
+# astoundingly convoluted in how it processes its linker flags.  Fixing it in
+# dpdk is the preferred solution, but adjusting to allow a gcc option in the
+# ldflags, even when gcc is used as the linker, requires large tree-wide changes
+export EXTRA_CFLAGS="$(echo %{optflags} | sed -e 's:-Wall::g' -e 's:-march=[[:alnum:]]* ::g') -Wformat -fPIC %{_hardening_ldflags}"
+export EXTRA_LDFLAGS=$(echo %{__global_ldflags} | sed -e's/-Wl,//' -e's/,/ /g' -e's/-spec.*//')
 
 # DPDK defaults to using builder-specific compiler flags.  However,
 # the config has been changed by specifying CONFIG_RTE_MACHINE=default
@@ -284,6 +290,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Tue Feb 27 2018 Neil Horman <nhorman@redhat.com> - 18.02-2
+- Fix rpm ldflags usage (bz 1548404)
+
 * Mon Feb 19 2018 Neil Horman <nhorman@redhat.com> - 18.02-1
 - update to latest upstream
 
