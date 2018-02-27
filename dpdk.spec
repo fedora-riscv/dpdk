@@ -13,7 +13,6 @@ Release: 2%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
 Patch0: dpdk-dpaa-build.patch
-Patch1: dpdk-extra-ldflags.patch
 
 
 Summary: Set of libraries and drivers for fast packet processing
