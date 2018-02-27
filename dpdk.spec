@@ -143,7 +143,7 @@ unset RTE_SDK RTE_INCLUDE RTE_TARGET
 # dpdk is the preferred solution, but adjusting to allow a gcc option in the
 # ldflags, even when gcc is used as the linker, requires large tree-wide changes
 export EXTRA_CFLAGS="$(echo %{optflags} | sed -e 's:-Wall::g' -e 's:-march=[[:alnum:]]* ::g') -Wformat -fPIC %{_hardening_ldflags}"
-export EXTRA_LDFLAGS=$(echo %{__global_ldflags} | sed -e's/-Wl,//' -e's/,/ /g' -e's/-spec.*//')
+export EXTRA_LDFLAGS=$(echo %{__global_ldflags} | sed -e's/-Wl,//g' -e's/-spec.*//')
 
 # DPDK defaults to using builder-specific compiler flags.  However,
 # the config has been changed by specifying CONFIG_RTE_MACHINE=default
