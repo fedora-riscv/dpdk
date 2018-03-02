@@ -1,0 +1,12 @@
+diff -up ./app/test-pmd/Makefile.arm ./app/test-pmd/Makefile
+--- ./app/test-pmd/Makefile.arm	2018-02-14 13:11:02.000000000 -0500
++++ ./app/test-pmd/Makefile	2018-02-26 12:01:02.999831933 -0500
+@@ -45,7 +45,7 @@ LDLIBS += -lrte_pmd_bond
+ endif
+ 
+ ifeq ($(CONFIG_RTE_LIBRTE_DPAA_PMD),y)
+-LDLIBS += -lrte_pmd_dpaa
++LDLIBS += -lrte_pmd_dpaa -lrte_bus_dpaa -lrte_mempool_dpaa
+ endif
+ 
+ ifeq ($(CONFIG_RTE_LIBRTE_IXGBE_PMD),y)
