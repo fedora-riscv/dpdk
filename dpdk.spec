@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 18.02 
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
 Patch0: dpdk-dpaa-build.patch
@@ -144,6 +144,8 @@ unset RTE_SDK RTE_INCLUDE RTE_TARGET
 # ldflags, even when gcc is used as the linker, requires large tree-wide changes
 export EXTRA_CFLAGS="$(echo %{optflags} | sed -e 's:-Wall::g' -e 's:-march=[[:alnum:]]* ::g') -Wformat -fPIC %{_hardening_ldflags}"
 export EXTRA_LDFLAGS=$(echo %{__global_ldflags} | sed -e's/-Wl,//g' -e's/-spec.*//')
+export HOST_EXTRA_CFLAGS=$EXTRA_CFLAGS
+export EXTRA_HOST_LDFLAGS=$EXTRA_LDFLAGS
 
 # DPDK defaults to using builder-specific compiler flags.  However,
 # the config has been changed by specifying CONFIG_RTE_MACHINE=default
@@ -289,6 +291,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Tue Mar 08 2018 Neil Horman <nhorman@redhat.com> - 18.02-3
+- Fixing missing c/ldflags for pmdinfogen (bz 1548404)
+
 * Tue Feb 27 2018 Neil Horman <nhorman@redhat.com> - 18.02-2
 - Fix rpm ldflags usage (bz 1548404)
 
