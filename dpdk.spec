@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 18.02 
-Release: 4%{?dist}
+Release: 5%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
 Patch0: dpdk-dpaa-build.patch
@@ -134,9 +134,6 @@ function setconf() {
 # In case dpdk-devel is installed, we should ignore its hints about the SDK directories
 unset RTE_SDK RTE_INCLUDE RTE_TARGET
 
-# Avoid appending second -Wall to everything, it breaks upstream warning
-# disablers in makefiles. Strip expclit -march= from optflags since they
-# will only guarantee build failures, DPDK is picky with that.
 # Note: _hardening_ldflags has to go on the extra cflags line because dpdk is
 # astoundingly convoluted in how it processes its linker flags.  Fixing it in
 # dpdk is the preferred solution, but adjusting to allow a gcc option in the
@@ -144,21 +141,18 @@ unset RTE_SDK RTE_INCLUDE RTE_TARGET
 export EXTRA_CFLAGS="$(echo %{optflags} | sed -e 's:-Wall::g' -e 's:-march=[[:alnum:]]* ::g') -Wformat -fPIC %{_hardening_ldflags}"
 export EXTRA_LDFLAGS=$(echo %{__global_ldflags} | sed -e's/-Wl,//g' -e's/-spec.*//')
 export HOST_EXTRA_CFLAGS=$EXTRA_CFLAGS
-export EXTRA_HOST_LDFLAGS=$EXTRA_LDFLAGS
-
-# Note: _hardening_ldflags has to go on the extra cflags line because dpdk is
-# astoundingly convoluted in how it processes its linker flags.  Fixing it in
-# dpdk is the preferred solution, but adjusting to allow a gcc option in the
-# ldflags, even when gcc is used as the linker, requires large tree-wide changes
-export EXTRA_CFLAGS="$(echo %{optflags} | sed -e 's:-Wall::g' -e 's:-march=[[:alnum:]]* ::g') -Wformat -fPIC %{_hardening_ldflags}"
-export EXTRA_LDFLAGS=$(echo %{__global_ldflags} | sed -e's/-Wl,//g' -e's/-spec.*//')
+export EXTRA_HOST_LDFLAGS=$(echo %{__global_ldflags} | sed -e's/-spec.*//')
 
 # DPDK defaults to using builder-specific compiler flags.  However,
 # the config has been changed by specifying CONFIG_RTE_MACHINE=default
 # in order to build for a more generic host.  NOTE: It is possible that
 # the compiler flags used still won't work for all Fedora-supported
 # machines, but runtime checks in DPDK will catch those situations.
-
+echo "NEIL"
+echo $EXTRA_CFLAGS
+echo $EXTRA_LDFLAGS
+echo $HOST_EXRA_CFLAGS
+echo $EXTRA_HOST_LDFLAGS
 make V=1 O=%{target} T=%{target} %{?_smp_mflags} config
 
 setconf CONFIG_RTE_MACHINE '"%{machine}"'
@@ -297,6 +291,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Thu Apr 05 2018 Neil Horman <nhorman@redhat.com> - 18.02-5
+- Fix compiler flag error (bz 1548404)
+
 * Tue Mar 20 2018 Neil Horman <nhorman@redhat.com> - 18.02-4
 - Update ldflags (bz 1548404)
 - bump release to keep it in line with rawhide
