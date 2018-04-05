@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 18.02 
-Release: 4%{?dist}
+Release: 5%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
 Patch0: dpdk-dpaa-build.patch
@@ -59,7 +59,7 @@ ExclusiveArch: x86_64 i686 aarch64 ppc64le
 %define target %{machine_arch}-%{machine_tmpl}-linuxapp-gcc
 
 BuildRequires: gcc
-BuildRequires: kernel-headers, libpcap-devel, doxygen, python2-sphinx, zlib-devel
+BuildRequires: kernel-headers, libpcap-devel, doxygen, python3-sphinx, zlib-devel
 BuildRequires: numactl-devel
 %if %{with pdfdoc}
 BuildRequires: texlive-dejavu inkscape texlive-latex-bin-bin
@@ -77,7 +77,7 @@ fast packet processing in the user space.
 
 %package devel
 Summary: Data Plane Development Kit development files
-Requires: %{name}%{?_isa} = %{version}-%{release} python2
+Requires: %{name}%{?_isa} = %{version}-%{release} python3
 %if ! %{with shared}
 Provides: %{name}-static = %{version}-%{release}
 %endif
@@ -97,7 +97,7 @@ API programming documentation for the Data Plane Development Kit.
 %package tools
 Summary: Tools for setting up Data Plane Development Kit environment
 Requires: %{name} = %{version}-%{release}
-Requires: kmod pciutils findutils iproute python2-pyelftools
+Requires: kmod pciutils findutils iproute python3-pyelftools
 
 %description tools
 %{summary}
@@ -145,7 +145,7 @@ unset RTE_SDK RTE_INCLUDE RTE_TARGET
 export EXTRA_CFLAGS="$(echo %{optflags} | sed -e 's:-Wall::g' -e 's:-march=[[:alnum:]]* ::g') -Wformat -fPIC %{_hardening_ldflags}"
 export EXTRA_LDFLAGS=$(echo %{__global_ldflags} | sed -e's/-Wl,//g' -e's/-spec.*//')
 export HOST_EXTRA_CFLAGS=$EXTRA_CFLAGS
-export EXTRA_HOST_LDFLAGS=$EXTRA_LDFLAGS
+export EXTRA_HOST_LDFLAGS=$(echo %{__global_ldflags} | sed -e's/-spec.*//')
 
 # DPDK defaults to using builder-specific compiler flags.  However,
 # the config has been changed by specifying CONFIG_RTE_MACHINE=default
@@ -291,6 +291,10 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Thu Apr 05 2018 Neil Horman <nhorman@redhat.com> - 18.02-5
+- Fix compiler flag error (bz 1548404)
+- Update spec file to switch to python3
+
 * Wed Mar 14 2018 Neil Horman <nhorman@redhat.com>< -18.02-4
 - Fixing date in changelog below
 
