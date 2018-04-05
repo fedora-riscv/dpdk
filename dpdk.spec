@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 18.02 
-Release: 5%{?dist}
+Release: 6%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
 Patch0: dpdk-dpaa-build.patch
@@ -148,11 +148,6 @@ export EXTRA_HOST_LDFLAGS=$(echo %{__global_ldflags} | sed -e's/-spec.*//')
 # in order to build for a more generic host.  NOTE: It is possible that
 # the compiler flags used still won't work for all Fedora-supported
 # machines, but runtime checks in DPDK will catch those situations.
-echo "NEIL"
-echo $EXTRA_CFLAGS
-echo $EXTRA_LDFLAGS
-echo $HOST_EXRA_CFLAGS
-echo $EXTRA_HOST_LDFLAGS
 make V=1 O=%{target} T=%{target} %{?_smp_mflags} config
 
 setconf CONFIG_RTE_MACHINE '"%{machine}"'
@@ -291,6 +286,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Thu Apr 05 2018 Neil Horman <nhorman@redhat.com> - 18.02-6
+- Remove some debug checks (bz 1548404)
+
 * Thu Apr 05 2018 Neil Horman <nhorman@redhat.com> - 18.02-5
 - Fix compiler flag error (bz 1548404)
 
