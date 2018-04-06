@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 18.02 
-Release: 5%{?dist}
+Release: 6%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
 Patch0: dpdk-dpaa-build.patch
@@ -216,6 +216,10 @@ for f in %{target}/examples/*/%{target}/app/*; do
 done
 %endif
 
+# Replace /usr/bin/env python with /usr/bin/python3
+find %{buildroot}%{sdkdir}/ -name "*.py" -exec \
+  sed -i -e 's|#!\s*/usr/bin/env python|#!/usr/bin/python3|' {} +
+
 # Create a driver directory with symlinks to all pmds
 mkdir -p %{buildroot}/%{pmddir}
 for f in %{buildroot}/%{_libdir}/*_pmd_*.so.*; do
@@ -291,6 +295,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Fri Apr 06 2018 Timothy Redaelli <tredaelli@redhat.com> -  18.02 -6
+- Replace "/usr/bin/env python" with "/usr/bin/python3" (bz 1564215)
+
 * Thu Apr 05 2018 Neil Horman <nhorman@redhat.com> - 18.02-5
 - Fix compiler flag error (bz 1548404)
 - Update spec file to switch to python3
