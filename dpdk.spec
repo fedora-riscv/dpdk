@@ -8,11 +8,11 @@
 %bcond_with pdfdoc
 
 Name: dpdk
-Version: 18.02 
-Release: 6%{?dist}
+Version: 17.11.1
+Release: 1%{?dist}
+Epoch: 2
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
-Patch0: dpdk-dpaa-build.patch
 
 
 Summary: Set of libraries and drivers for fast packet processing
@@ -119,8 +119,7 @@ as L2 and L3 forwarding.
 %define pmddir %{_libdir}/%{name}-pmds
 
 %prep
-%setup -q
-%patch0 -p1
+%setup -q -n dpdk-stable-%{version}
 
 %build
 # set up a method for modifying the resulting .config file
@@ -251,7 +250,6 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %files
 # BSD
 %{_bindir}/testpmd
-%{_bindir}/testbbdev
 %{_bindir}/dpdk-procinfo
 %if %{with shared}
 %{_libdir}/*.so.*
