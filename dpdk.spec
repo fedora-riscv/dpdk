@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 17.11.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
@@ -178,9 +178,9 @@ setconf CONFIG_RTE_APP_EVENTDEV n
 setconf CONFIG_RTE_LIBRTE_NFP_PMD y
 
 %ifarch aarch64
-setconf CONFIG_RTE_LIBRTE_DPAA_BUS y
-setconf CONFIG_RTE_LIBRTE_DPAA_MEMPOOL y
-setconf CONFIG_RTE_LIBRTE_DPAA_PMD y
+setconf CONFIG_RTE_LIBRTE_DPAA_BUS n
+setconf CONFIG_RTE_LIBRTE_DPAA_MEMPOOL n
+setconf CONFIG_RTE_LIBRTE_DPAA_PMD n
 %endif
 
 %if %{with shared}
@@ -293,6 +293,12 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Fri Apr 06 2018 Neil Horman <nhorman@redhat.com> 2:17.11.1-2
+- Fix aarch64 build issue
+
+* Fri Apr 06 2018 Neil Horman <nhorman@redhat.com> 2:17.11.1-1
+- Update to latest LTS release for OVS
+
 * Fri Apr 06 2018 Timothy Redaelli <tredaelli@redhat.com> -  18.02 -6
 - Replace "/usr/bin/env python" with "/usr/bin/python3" (bz 1564215)
 
