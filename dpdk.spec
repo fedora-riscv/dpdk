@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 17.11.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
@@ -77,9 +77,9 @@ fast packet processing in the user space.
 
 %package devel
 Summary: Data Plane Development Kit development files
-Requires: %{name}%{?_isa} = %{version}-%{release} python3
+Requires: %{name}%{?_isa} = %{epoch}:%{version}-%{release} python3
 %if ! %{with shared}
-Provides: %{name}-static = %{version}-%{release}
+Provides: %{name}-static = %{epoch}:%{version}-%{release}
 %endif
 
 %description devel
@@ -96,7 +96,7 @@ API programming documentation for the Data Plane Development Kit.
 %if %{with tools}
 %package tools
 Summary: Tools for setting up Data Plane Development Kit environment
-Requires: %{name} = %{version}-%{release}
+Requires: %{name} = %{epoch}:%{version}-%{release}
 Requires: kmod pciutils findutils iproute python3-pyelftools
 
 %description tools
@@ -290,6 +290,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Tue Apr 10 2018 Timothy Redaelli <tredaelli@redhat.com> - 2:17.11.1-2
+- Fix Requires dpdk by adding epoch (bz 1564215)
+
 * Mon Apr 09 2018 Neil Horman <nhorman@redhat.com> - 17.11.1-1 
 - sync rawhide updates (including LTS shift) with f28 (bz 1564215)
 
