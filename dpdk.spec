@@ -8,11 +8,12 @@
 %bcond_with pdfdoc
 
 Name: dpdk
-Version: 18.02 
-Release: 6%{?dist}
+Version: 17.11.1
+Release: 1%{?dist}
+Epoch: 2
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
-Patch0: dpdk-dpaa-build.patch
+#Patch0: dpdk-dpaa-build.patch
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -58,7 +59,7 @@ ExclusiveArch: x86_64 i686 aarch64 ppc64le
 %define target %{machine_arch}-%{machine_tmpl}-linuxapp-gcc
 
 BuildRequires: gcc
-BuildRequires: kernel-headers, libpcap-devel, doxygen, python2-sphinx, zlib-devel
+BuildRequires: kernel-headers, libpcap-devel, doxygen, python3-sphinx, zlib-devel
 BuildRequires: numactl-devel
 %if %{with pdfdoc}
 BuildRequires: texlive-dejavu inkscape texlive-latex-bin-bin
@@ -76,7 +77,7 @@ fast packet processing in the user space.
 
 %package devel
 Summary: Data Plane Development Kit development files
-Requires: %{name}%{?_isa} = %{version}-%{release} python2
+Requires: %{name}%{?_isa} = %{version}-%{release} python3
 %if ! %{with shared}
 Provides: %{name}-static = %{version}-%{release}
 %endif
@@ -96,7 +97,7 @@ API programming documentation for the Data Plane Development Kit.
 %package tools
 Summary: Tools for setting up Data Plane Development Kit environment
 Requires: %{name} = %{version}-%{release}
-Requires: kmod pciutils findutils iproute python2-pyelftools
+Requires: kmod pciutils findutils iproute python3-pyelftools
 
 %description tools
 %{summary}
@@ -118,8 +119,8 @@ as L2 and L3 forwarding.
 %define pmddir %{_libdir}/%{name}-pmds
 
 %prep
-%setup -q
-%patch0 -p1
+%setup -q -n dpdk-stable-%{version}
+#%patch0 -p1
 
 %build
 # set up a method for modifying the resulting .config file
@@ -174,9 +175,9 @@ setconf CONFIG_RTE_APP_EVENTDEV n
 setconf CONFIG_RTE_LIBRTE_NFP_PMD y
 
 %ifarch aarch64
-setconf CONFIG_RTE_LIBRTE_DPAA_BUS y
-setconf CONFIG_RTE_LIBRTE_DPAA_MEMPOOL y
-setconf CONFIG_RTE_LIBRTE_DPAA_PMD y
+setconf CONFIG_RTE_LIBRTE_DPAA_BUS n
+setconf CONFIG_RTE_LIBRTE_DPAA_MEMPOOL n 
+setconf CONFIG_RTE_LIBRTE_DPAA_PMD n 
 %endif
 
 %if %{with shared}
@@ -211,6 +212,10 @@ for f in %{target}/examples/*/%{target}/app/*; do
 done
 %endif
 
+# Replace /usr/bin/env python with /usr/bin/python3
+find %{buildroot}%{sdkdir}/ -name "*.py" -exec \
+  sed -i -e 's|#!\s*/usr/bin/env python|#!/usr/bin/python3|' {} +
+
 # Create a driver directory with symlinks to all pmds
 mkdir -p %{buildroot}/%{pmddir}
 for f in %{buildroot}/%{_libdir}/*_pmd_*.so.*; do
@@ -242,7 +247,6 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %files
 # BSD
 %{_bindir}/testpmd
-%{_bindir}/testbbdev
 %{_bindir}/dpdk-procinfo
 %if %{with shared}
 %{_libdir}/*.so.*
@@ -286,6 +290,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Mon Apr 09 2018 Neil Horman <nhorman@redhat.com> - 17.11.1-1 
+- sync rawhide updates (including LTS shift) with f28 (bz 1564215)
+
 * Thu Apr 05 2018 Neil Horman <nhorman@redhat.com> - 18.02-6
 - Remove some debug checks (bz 1548404)
 
