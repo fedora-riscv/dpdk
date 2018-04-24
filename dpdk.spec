@@ -8,12 +8,11 @@
 %bcond_with pdfdoc
 
 Name: dpdk
-Version: 17.08
+Version: 17.08.2
 Release: 1%{?dist}
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
 Patch1: lengthfix.patch
-#Patch2: 5b45c30a00ecbd5181e5679b13ca059bcd761ead.patch
 
 
 Summary: Set of libraries and drivers for fast packet processing
@@ -119,9 +118,8 @@ as L2 and L3 forwarding.
 %define pmddir %{_libdir}/%{name}-pmds
 
 %prep
-%setup -q
+%setup -q -n dpdk-stable-%{version}
 %patch1 -p1 -b .lengthfix
-#%patch2 -p1 -b .5b45c30
 
 %build
 # set up a method for modifying the resulting .config file
@@ -262,7 +260,6 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 
 %if %{with tools}
 %files tools
-#%{sdkdir}/devtools/
 %{_sbindir}/dpdk-devbind
 %{_bindir}/dpdk-pdump
 %{_bindir}/dpdk-pmdinfo
@@ -276,6 +273,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Tue Apr 24 2018 Neil Horman <nhorman@redhat.com> - 17.08.2-1
+- Update to latest lts release (fixes bz 1570865)
+
 * Wed Aug 09 2017 Neil Horman <nhorman@redhat.com> - 17.08-1
 - Update to latest upstream
 
