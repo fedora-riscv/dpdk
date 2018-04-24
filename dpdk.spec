@@ -8,8 +8,8 @@
 %bcond_with pdfdoc
 
 Name: dpdk
-Version: 17.11.1
-Release: 3%{?dist}
+Version: 17.11.2
+Release: 1%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
@@ -293,6 +293,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Tue Apr 24 2018 Neil Horman <nhorman@redhat.com> 2:17.11.2-1
+- Update to latest 17.11 LTS (fixes bz 1571361)
+
 * Tue Apr 10 2018 Timothy Redaelli <tredaelli@redhat.com> - 2:17.11.1-3
 - Fix Requires dpdk by adding epoch
 
