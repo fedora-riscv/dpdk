@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 17.11.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
@@ -293,6 +293,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Thu Jul 12 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2:17.11.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
 * Tue Apr 24 2018 Neil Horman <nhorman@redhat.com> 2:17.11.2-1
 - Update to latest 17.11 LTS (fixes bz 1571361)
 
