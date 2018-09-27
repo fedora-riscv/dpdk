@@ -122,9 +122,9 @@ as L2 and L3 forwarding.
 
 %prep
 %setup -q -n dpdk-stable-%{version}
-%patch0 -p1 .pie
+%patch0 -p1 
 %ifarch x86_64 i686
-%patch1 -p1 .fcf
+%patch1 -p1
 %endif
 
 %build
