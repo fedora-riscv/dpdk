@@ -9,11 +9,13 @@
 
 Name: dpdk
 Version: 17.11.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
 
+Patch0: app-pie.patch
+Patch1: fcf-protection.patch
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -120,8 +122,10 @@ as L2 and L3 forwarding.
 
 %prep
 %setup -q -n dpdk-stable-%{version}
+%autopatch -p1
 
 %build
+%set_build_flags
 # set up a method for modifying the resulting .config file
 function setconf() {
 	if grep -q ^$1= %{target}/.config; then
@@ -141,9 +145,16 @@ unset RTE_SDK RTE_INCLUDE RTE_TARGET
 # astoundingly convoluted in how it processes its linker flags.  Fixing it in
 # dpdk is the preferred solution, but adjusting to allow a gcc option in the
 # ldflags, even when gcc is used as the linker, requires large tree-wide changes
+touch obj.o
+gcc -### obj.o 2>&1 | awk '/.*collect2.*/ { print $0}' > ./noopts.txt
+gcc -### $(rpm --eval '%{build_ldflags}') obj.o 2>&1 | awk '/.*collect2.*/ {print $0}' > ./opts.txt
+EXTRA_RPM_LDFLAGS=$(wdiff -3 -n ./noopts.txt ./opts.txt | sed -e"/^=\+$/d" -e"/^.*\.res.*/d" -e"s/\[-//g" -e"s/\-\]//g" -e"s/{+//g" -e"s/+}//g" -e"s/\/.*\.o //g" -e"s/ \/.*\.o$//g" -e"s/-z .*//g" | tr '\n' ' ')
+rm -f obj.o
+
 export EXTRA_CFLAGS="$(echo %{optflags} | sed -e 's:-Wall::g' -e 's:-march=[[:alnum:]]* ::g') -Wformat -fPIC %{_hardening_ldflags}"
+export EXTRA_CFLAGS="$EXTRA_CFLAGS -fcf-protection=full"
 export EXTRA_LDFLAGS=$(echo %{__global_ldflags} | sed -e's/-Wl,//g' -e's/-spec.*//')
-export HOST_EXTRA_CFLAGS=$EXTRA_CFLAGS
+export HOST_EXTRA_CFLAGS="$EXTRA_CFLAGS $EXTRA_RPM_LDFLAGS"
 export EXTRA_HOST_LDFLAGS=$(echo %{__global_ldflags} | sed -e's/-spec.*//')
 
 # DPDK defaults to using builder-specific compiler flags.  However,
@@ -293,6 +304,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Thu Sep 27 2018 Neil Horman <nhorman@tuxdriver.com> - 2:17.11.2-3
+- quiet annocheck complaints (bz1548404)
+
 * Thu Jul 12 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2:17.11.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
