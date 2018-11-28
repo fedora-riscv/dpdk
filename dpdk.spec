@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 17.11.2
-Release: 3%{?dist}
+Release: 4%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
@@ -61,7 +61,7 @@ ExclusiveArch: x86_64 i686 aarch64 ppc64le
 %define target %{machine_arch}-%{machine_tmpl}-linuxapp-gcc
 
 BuildRequires: gcc
-BuildRequires: kernel-headers, libpcap-devel, doxygen, python3-sphinx, zlib-devel
+BuildRequires: kernel-headers, libpcap-devel, doxygen, python3-sphinx, zlib-devel, wdiff
 BuildRequires: numactl-devel
 %if %{with pdfdoc}
 BuildRequires: texlive-dejavu inkscape texlive-latex-bin-bin
@@ -309,6 +309,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Wed Nov 27 2018 Neil Horman <nhorman@redhat.com> - 2:17.11.2-4
+- Add wdiff to BuildRequires
+
 * Thu Sep 27 2018 Neil Horman <nhorman@tuxdriver.com> - 2:17.11.2-3
 - quiet annocheck complaints (bz1548404)
 
