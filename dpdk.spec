@@ -255,7 +255,7 @@ fi
 EOF
 
 cat << EOF > %{buildroot}/%{_sysconfdir}/profile.d/dpdk-sdk-%{_arch}.csh
-if ( ! \$RTE_SDK ) then
+if ( ! \$?RTE_SDK ) then
     setenv RTE_SDK "%{sdkdir}"
     setenv RTE_TARGET "%{target}"
     setenv RTE_INCLUDE "%{incdir}"
