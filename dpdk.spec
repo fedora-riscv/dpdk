@@ -317,7 +317,7 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 * Thu Jan 31 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2:17.11.2-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
 
-* Wed Nov 27 2018 Neil Horman <nhorman@redhat.com> - 2:17.11.2-4
+* Tue Nov 27 2018 Neil Horman <nhorman@redhat.com> - 2:17.11.2-4
 - Add wdiff to BuildRequires
 
 * Thu Sep 27 2018 Neil Horman <nhorman@tuxdriver.com> - 2:17.11.2-3
