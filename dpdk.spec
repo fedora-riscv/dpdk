@@ -8,8 +8,8 @@
 %bcond_with pdfdoc
 
 Name: dpdk
-Version: 17.11.2
-Release: 6%{?dist}
+Version: 18.11
+Release: 1%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
@@ -122,7 +122,7 @@ as L2 and L3 forwarding.
 %define pmddir %{_libdir}/%{name}-pmds
 
 %prep
-%setup -q -n dpdk-stable-%{version}
+%setup -q -n dpdk-%{version}
 %patch0 -p1 
 %ifarch x86_64 i686
 %patch1 -p1
@@ -222,8 +222,12 @@ unset RTE_SDK RTE_INCLUDE RTE_TARGET
 rm -rf %{buildroot}%{sdkdir}/usertools
 rm -rf %{buildroot}%{_sbindir}/dpdk_nic_bind
 rm -rf %{buildroot}%{_bindir}/dpdk-test-crypto-perf
+rm -rf %{buildroot}%{_bindir}/testbbdev
+%else
+mv %{buildroot}%{_bindir}/testbbdev %{buildroot}%{_bindir}/dpdk-test-bbdev
 %endif
 rm -f %{buildroot}%{sdkdir}/usertools/dpdk-setup.sh
+rm -f %{buildroot}%{sdkdir}/usertools/meson.build
 
 %if %{with examples}
 find %{target}/examples/ -name "*.map" | xargs rm -f
@@ -301,6 +305,7 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %{_sbindir}/dpdk-devbind
 %{_bindir}/dpdk-pdump
 %{_bindir}/dpdk-pmdinfo
+%{_bindir}/dpdk-test-bbdev
 %{_bindir}/dpdk-test-crypto-perf
 %endif
 
@@ -311,6 +316,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Thu Feb 28 2019 Timothy Redaelli <tredaelli@redhat.com> - 2:18.11.0-1
+- Update to latest LTS release (bz1684107)
+
 * Wed Feb 13 2019 Neil Horman <nhorman@redhat.com> - 2:17.11.2-6
 - Fix some FTBFS errors (1674825)
 
