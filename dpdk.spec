@@ -8,11 +8,11 @@
 %bcond_with pdfdoc
 
 Name: dpdk
-Version: 18.11
+Version: 18.11.2
 Release: 1%{?dist}
 Epoch: 2
 URL: http://dpdk.org
-Source: http://dpdk.org/browse/dpdk/snapshot/dpdk-%{version}.tar.xz
+Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
 
 Patch0: app-pie.patch
 Patch1: fcf-protection.patch
@@ -122,7 +122,7 @@ as L2 and L3 forwarding.
 %define pmddir %{_libdir}/%{name}-pmds
 
 %prep
-%setup -q -n dpdk-%{version}
+%setup -q -n dpdk-stable-%{version}
 %patch0 -p1 
 %ifarch x86_64 i686
 %patch1 -p1
@@ -316,6 +316,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Tue Jun 25 2019 Timothy Redaelli <tredaelli@redhat.com> - 2:18.11.2-1
+- Update to latest 18.11 LTS (bz1721056)
+
 * Thu Feb 28 2019 Timothy Redaelli <tredaelli@redhat.com> - 2:18.11.0-1
 - Update to latest LTS release (bz1684107)
 
