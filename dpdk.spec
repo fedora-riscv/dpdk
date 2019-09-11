@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 18.11.2
-Release: 3%{?dist}
+Release: 4%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -17,6 +17,8 @@ Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
 Patch0: app-pie.patch
 Patch1: fcf-protection.patch
 Patch2: dpdk-rte-ether-align.patch
+# fixed multilib issue with doxygen
+Patch3: dpdk-stable-18.11.2-doxygen-multilib.patch
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -128,6 +130,7 @@ as L2 and L3 forwarding.
 %patch1 -p1
 %endif
 %patch2 -p1
+%patch3 -p1
 
 %build
 %set_build_flags
@@ -316,6 +319,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Wed Sep 11 2019 Than Ngo <than@redhat.com> - 2:18.11.2-4
+- Fix multilib issue, different outputs on different arches
+
 * Mon Aug 26 2019 Neil Horman <nhorman@redhat.com> - 2:18.11.2-3
 - Fix csh syntax in dpdk-sdk-x86_64.csg (bz1742942)
 
