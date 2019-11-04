@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 18.11.2
-Release: 4%{?dist}
+Release: 5%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -165,7 +165,7 @@ export EXTRA_CFLAGS="$EXTRA_CFLAGS -fcf-protection=full"
 %endif
 export EXTRA_LDFLAGS=$(echo %{__global_ldflags} | sed -e's/-Wl,//g' -e's/-spec.*//')
 export HOST_EXTRA_CFLAGS="$EXTRA_CFLAGS $EXTRA_RPM_LDFLAGS"
-export EXTRA_HOST_LDFLAGS=$(echo %{__global_ldflags} | sed -e's/-spec.*//')
+export EXTRA_HOST_LDFLAGS="$EXTRA_RPM_LDFLAGS $(echo %{__global_ldflags} | sed -e's/-spec.*//')"
 
 # DPDK defaults to using builder-specific compiler flags.  However,
 # the config has been changed by specifying CONFIG_RTE_MACHINE=default
@@ -319,6 +319,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Mon Nov 04 2019 Timothy Redaelli <tredaelli@redhat.com> - 2:18.11.2-5
+- Pass the correct LDFLAGS to host apps (dpdk-pmdinfogen) too (bz1768405)
+
 * Wed Sep 11 2019 Than Ngo <than@redhat.com> - 2:18.11.2-4
 - Fix multilib issue, different outputs on different arches
 
