@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 18.11.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -17,6 +17,8 @@ Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
 Patch0: app-pie.patch
 Patch1: fcf-protection.patch
 Patch2: dpdk-rte-ether-align.patch
+Patch3: vhost-dos-vring.patch
+Patch4: vhost-dos-leak-fd.patch
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -128,6 +130,8 @@ as L2 and L3 forwarding.
 %patch1 -p1
 %endif
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
 
 %build
 %set_build_flags
@@ -316,6 +320,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Wed Nov 13 2019 Neil Horman <nhorman@redhat.com> - 2:18.11.2-3
+- Fix 2 DoS attacks (bz 1771929)
+
 * Wed Jul 24 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2:18.11.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
