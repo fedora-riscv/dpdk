@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 18.11.2
-Release: 5%{?dist}
+Release: 6%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -319,6 +319,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Tue Jan 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 2:18.11.2-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
 * Mon Nov 04 2019 Timothy Redaelli <tredaelli@redhat.com> - 2:18.11.2-5
 - Pass the correct LDFLAGS to host apps (dpdk-pmdinfogen) too (bz1768405)
 
