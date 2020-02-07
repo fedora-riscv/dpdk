@@ -8,8 +8,8 @@
 %bcond_with pdfdoc
 
 Name: dpdk
-Version: 18.11.2
-Release: 6%{?dist}
+Version: 18.11.6
+Release: 1%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -159,7 +159,7 @@ gcc -### $(rpm --eval '%{build_ldflags}') obj.o 2>&1 | awk '/.*collect2.*/ {prin
 EXTRA_RPM_LDFLAGS=$(wdiff -3 -n ./noopts.txt ./opts.txt | sed -e"/^=\+$/d" -e"/^.*\.res.*/d" -e"s/\[-//g" -e"s/\-\]//g" -e"s/{+//g" -e"s/+}//g" -e"s/\/.*\.o //g" -e"s/ \/.*\.o$//g" -e"s/-z .*//g" | tr '\n' ' ')
 rm -f obj.o
 
-export EXTRA_CFLAGS="$(echo %{optflags} | sed -e 's:-Wall::g' -e 's:-march=[[:alnum:]]* ::g') -Wformat -fPIC %{_hardening_ldflags}"
+export EXTRA_CFLAGS="$(echo %{optflags} | sed -e 's:-Wall::g' -e 's:-march=[[:alnum:]]* ::g') -Wformat -fPIC -fcommon %{_hardening_ldflags}"
 %ifarch x86_64 i686
 export EXTRA_CFLAGS="$EXTRA_CFLAGS -fcf-protection=full"
 %endif
@@ -319,6 +319,11 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Fri Feb 07 2020 Timothy Redaelli <tredaelli@redhat.com> - 2:18.11.6-1
+- Update to latest 18.11 LTS (bz1800510)
+- Add -fcommon to CFLAGS as workaround in order to make it build on GCC 10
+  (bz1799289)
+
 * Tue Jan 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 2:18.11.2-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
 
