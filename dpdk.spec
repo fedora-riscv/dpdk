@@ -8,7 +8,7 @@
 %bcond_with pdfdoc
 
 Name: dpdk
-Version: 18.11.6
+Version: 19.11
 Release: 1%{?dist}
 Epoch: 2
 URL: http://dpdk.org
@@ -16,7 +16,6 @@ Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
 
 Patch0: app-pie.patch
 Patch1: fcf-protection.patch
-Patch2: dpdk-rte-ether-align.patch
 # fixed multilib issue with doxygen
 Patch3: dpdk-stable-18.11.2-doxygen-multilib.patch
 
@@ -123,13 +122,35 @@ as L2 and L3 forwarding.
 %define incdir %{_includedir}/%{name}
 %define pmddir %{_libdir}/%{name}-pmds
 
+%pretrans -p <lua>
+-- This is to clean up directories before links created
+-- See https://fedoraproject.org/wiki/Packaging:Directory_Replacement
+
+directories = {
+    "/usr/share/dpdk/mk/exec-env/bsdapp",
+    "/usr/share/dpdk/mk/exec-env/linuxapp"
+}
+for i,path in ipairs(directories) do
+  st = posix.stat(path)
+  if st and st.type == "directory" then
+    status = os.rename(path, path .. ".rpmmoved")
+    if not status then
+      suffix = 0
+      while not status do
+        suffix = suffix + 1
+        status = os.rename(path .. ".rpmmoved", path .. ".rpmmoved." .. suffix)
+      end
+      os.rename(path, path .. ".rpmmoved")
+    end
+  end
+end
+
 %prep
-%setup -q -n dpdk-stable-%{version}
-%patch0 -p1 
+%setup -q -n dpdk-%{version}
+%patch0 -p1
 %ifarch x86_64 i686
 %patch1 -p1
 %endif
-%patch2 -p1
 %patch3 -p1
 
 %build
@@ -289,6 +310,8 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 #BSD
 %{incdir}/
 %{sdkdir}
+%ghost %{sdkdir}/mk/exec-env/bsdapp
+%ghost %{sdkdir}/mk/exec-env/linuxapp
 %if %{with tools}
 %exclude %{sdkdir}/usertools/
 %endif
@@ -309,7 +332,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %{_bindir}/dpdk-pdump
 %{_bindir}/dpdk-pmdinfo
 %{_bindir}/dpdk-test-bbdev
+%{_bindir}/dpdk-test-compress-perf
 %{_bindir}/dpdk-test-crypto-perf
+%{_bindir}/testsad
 %endif
 
 %if %{with examples}
