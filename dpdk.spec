@@ -8,7 +8,7 @@
 %bcond_with pdfdoc
 
 Name: dpdk
-Version: 19.11
+Version: 19.11.1
 Release: 1%{?dist}
 Epoch: 2
 URL: http://dpdk.org
@@ -146,7 +146,7 @@ for i,path in ipairs(directories) do
 end
 
 %prep
-%setup -q -n dpdk-%{version}
+%setup -q -n dpdk-stable-%{version}
 %patch0 -p1
 %ifarch x86_64 i686
 %patch1 -p1
@@ -344,6 +344,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Mon Apr 06 2020 Timothy Redaelli <tredaelli@redhat.com> - 2:19.11-1
+- Update to latest 19.11 LTS (bz1821213)
+
 * Fri Feb 07 2020 Timothy Redaelli <tredaelli@redhat.com> - 2:18.11.6-1
 - Update to latest 18.11 LTS (bz1800510)
 - Add -fcommon to CFLAGS as workaround in order to make it build on GCC 10
