@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 19.11.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -268,6 +268,9 @@ done
 find %{buildroot}%{sdkdir}/ -name "*.py" -exec \
   sed -i -e 's|#!\s*/usr/bin/env python|#!/usr/bin/python3|' {} +
 
+find %{buildroot}%{sdkdir}/ -name "*.py" -exec \
+  sed -i -e 's|#!\s*/usr/bin/python33|#!/usr/bin/python3|' {} +
+
 # Create a driver directory with symlinks to all pmds
 mkdir -p %{buildroot}/%{pmddir}
 for f in %{buildroot}/%{_libdir}/*_pmd_*.so.*; do
@@ -347,6 +350,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Thu May 07 2020 Neil Horman <nhorman@redhat.com> - 2:19.11-2
+- Fix error in python interpreter fixup (bz 1832416)
+
 * Mon Apr 06 2020 Timothy Redaelli <tredaelli@redhat.com> - 2:19.11-1
 - Update to latest 19.11 LTS (bz1821213)
 
