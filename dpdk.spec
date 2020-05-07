@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 19.11.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -280,6 +280,9 @@ done
 find %{buildroot}%{sdkdir}/ -name "*.py" -exec \
   sed -i -e 's|#!\s*/usr/bin/env python|#!/usr/bin/python3|' {} +
 
+find %{buildroot}%{sdkdir}/ -name "*.py" -exec \
+  sed -i -e 's|#!\s*/usr/bin/python33|#!/usr/bin/python3|' {} +
+
 # Create a driver directory with symlinks to all pmds
 mkdir -p %{buildroot}/%{pmddir}
 for f in %{buildroot}/%{_libdir}/*_pmd_*.so.*; do
@@ -359,14 +362,17 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
-* Tue May 19 2020 Neil Horman <nhorman@redhat.com> - 2:19.11-2
+* Wed Jun 03 2020 Timothy Redaelli <tredaelli@redhat.com> - 2:19.11.1-3
+- Fix error in python interpreter fixup (bz 1841960)
+
+* Tue May 19 2020 Neil Horman <nhorman@redhat.com> - 2:19.11.1-2
 - Fix CVE-2020-10726 (bz 1837060)
 - Fix CVE-2020-10724 (bz 1837057)
 - Fix CVE-2020-10723 (bz 1837056)
 - Fix CVE-2020-10722 (bz 1837055)
 - Fix CVE-2020-10725 (bz 1837059)
 
-* Mon Apr 06 2020 Timothy Redaelli <tredaelli@redhat.com> - 2:19.11-1
+* Mon Apr 06 2020 Timothy Redaelli <tredaelli@redhat.com> - 2:19.11.1-1
 - Update to latest 19.11 LTS (bz1821213)
 
 * Fri Feb 07 2020 Timothy Redaelli <tredaelli@redhat.com> - 2:18.11.6-1
