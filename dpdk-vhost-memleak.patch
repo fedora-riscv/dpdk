@@ -1,0 +1,27 @@
+diff -up ./lib/librte_vhost/vhost_user.c.vhost-leak ./lib/librte_vhost/vhost_user.c
+--- ./lib/librte_vhost/vhost_user.c.vhost-leak	2020-03-17 06:02:16.000000000 -0400
++++ ./lib/librte_vhost/vhost_user.c	2020-05-19 11:48:05.471938693 -0400
+@@ -1433,6 +1433,11 @@ vhost_user_get_inflight_fd(struct virtio
+ 	}
+ 	memset(addr, 0, mmap_size);
+ 
++	if (dev->inflight_info->addr) {
++		munmap(dev->inflight_info->addr, dev->inflight_info->size);
++		dev->inflight_info->addr = NULL;
++	}
++
+ 	dev->inflight_info->addr = addr;
+ 	dev->inflight_info->size = msg->payload.inflight.mmap_size = mmap_size;
+ 	dev->inflight_info->fd = msg->fds[0] = fd;
+@@ -1517,8 +1522,10 @@ vhost_user_set_inflight_fd(struct virtio
+ 		}
+ 	}
+ 
+-	if (dev->inflight_info->addr)
++	if (dev->inflight_info->addr) {
+ 		munmap(dev->inflight_info->addr, dev->inflight_info->size);
++		dev->inflight_info->addr = NULL;
++	}
+ 
+ 	addr = mmap(0, mmap_size, PROT_READ | PROT_WRITE, MAP_SHARED,
+ 		    fd, mmap_offset);

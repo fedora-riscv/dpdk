@@ -1,0 +1,21 @@
+diff -up ./lib/librte_vhost/virtio_net.c.addr-translate ./lib/librte_vhost/virtio_net.c
+--- ./lib/librte_vhost/virtio_net.c.addr-translate	2020-03-17 06:02:16.000000000 -0400
++++ ./lib/librte_vhost/virtio_net.c	2020-05-19 12:31:03.504144126 -0400
+@@ -1086,6 +1086,8 @@ virtio_dev_rx_batch_packed(struct virtio
+ 						  VHOST_ACCESS_RW);
+ 
+ 	vhost_for_each_try_unroll(i, 0, PACKED_BATCH_SIZE) {
++		if (unlikely(!desc_addrs[i]))
++			return -1;
+ 		if (unlikely(lens[i] != descs[avail_idx + i].len))
+ 			return -1;
+ 	}
+@@ -1841,6 +1843,8 @@ vhost_reserve_avail_batch_packed(struct
+ 	}
+ 
+ 	vhost_for_each_try_unroll(i, 0, PACKED_BATCH_SIZE) {
++		if (unlikely(!desc_addrs[i]))
++			return -1;
+ 		if (unlikely((lens[i] != descs[avail_idx + i].len)))
+ 			return -1;
+ 	}

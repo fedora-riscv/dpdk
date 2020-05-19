@@ -1,0 +1,52 @@
+diff -up ./lib/librte_vhost/vhost_user.c.vhost-fdleak ./lib/librte_vhost/vhost_user.c
+--- ./lib/librte_vhost/vhost_user.c.vhost-fdleak	2020-05-19 11:49:41.284611525 -0400
++++ ./lib/librte_vhost/vhost_user.c	2020-05-19 11:50:09.159516342 -0400
+@@ -206,7 +206,7 @@ vhost_backend_cleanup(struct virtio_net
+ 			dev->inflight_info->addr = NULL;
+ 		}
+ 
+-		if (dev->inflight_info->fd > 0) {
++		if (dev->inflight_info->fd >= 0) {
+ 			close(dev->inflight_info->fd);
+ 			dev->inflight_info->fd = -1;
+ 		}
+@@ -1408,6 +1408,7 @@ vhost_user_get_inflight_fd(struct virtio
+ 				"failed to alloc dev inflight area\n");
+ 			return RTE_VHOST_MSG_RESULT_ERR;
+ 		}
++		dev->inflight_info->fd = -1;
+ 	}
+ 
+ 	num_queues = msg->payload.inflight.num_queues;
+@@ -1438,6 +1439,11 @@ vhost_user_get_inflight_fd(struct virtio
+ 		dev->inflight_info->addr = NULL;
+ 	}
+ 
++	if (dev->inflight_info->fd >= 0) {
++		close(dev->inflight_info->fd);
++		dev->inflight_info->fd = -1;
++	}
++
+ 	dev->inflight_info->addr = addr;
+ 	dev->inflight_info->size = msg->payload.inflight.mmap_size = mmap_size;
+ 	dev->inflight_info->fd = msg->fds[0] = fd;
+@@ -1520,6 +1526,7 @@ vhost_user_set_inflight_fd(struct virtio
+ 				"failed to alloc dev inflight area\n");
+ 			return RTE_VHOST_MSG_RESULT_ERR;
+ 		}
++		dev->inflight_info->fd = -1;
+ 	}
+ 
+ 	if (dev->inflight_info->addr) {
+@@ -1534,8 +1541,10 @@ vhost_user_set_inflight_fd(struct virtio
+ 		return RTE_VHOST_MSG_RESULT_ERR;
+ 	}
+ 
+-	if (dev->inflight_info->fd)
++	if (dev->inflight_info->fd >= 0) {
+ 		close(dev->inflight_info->fd);
++		dev->inflight_info->fd = -1;
++	}
+ 
+ 	dev->inflight_info->fd = fd;
+ 	dev->inflight_info->addr = addr;

@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 19.11.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -18,6 +18,12 @@ Patch0: app-pie.patch
 Patch1: fcf-protection.patch
 # fixed multilib issue with doxygen
 Patch3: dpdk-stable-18.11.2-doxygen-multilib.patch
+Patch4: dpdk-vhost-memleak.patch
+Patch5: dpdk-vhost-fdleak.patch
+Patch6: dpdk-keylen-validation.patch
+Patch7: dpdk-vring-idx-check.patch
+Patch8: dpdk-vhost-mmap-fix.patch
+Patch9: dpdk-virtio-addr-translate.patch
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -152,6 +158,12 @@ end
 %patch1 -p1
 %endif
 %patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
 
 %build
 %set_build_flags
@@ -347,6 +359,13 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Tue May 19 2020 Neil Horman <nhorman@redhat.com> - 2:19.11-2
+- Fix CVE-2020-10726 (bz 1837060)
+- Fix CVE-2020-10724 (bz 1837057)
+- Fix CVE-2020-10723 (bz 1837056)
+- Fix CVE-2020-10722 (bz 1837055)
+- Fix CVE-2020-10725 (bz 1837059)
+
 * Mon Apr 06 2020 Timothy Redaelli <tredaelli@redhat.com> - 2:19.11-1
 - Update to latest 19.11 LTS (bz1821213)
 

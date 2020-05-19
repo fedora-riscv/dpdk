@@ -1,0 +1,17 @@
+diff -up ./lib/librte_vhost/vhost_user.c.mmap-fix ./lib/librte_vhost/vhost_user.c
+--- ./lib/librte_vhost/vhost_user.c.mmap-fix	2020-05-19 12:29:16.567508875 -0400
++++ ./lib/librte_vhost/vhost_user.c	2020-05-19 12:29:33.809450064 -0400
+@@ -2075,10 +2075,10 @@ vhost_user_set_log_base(struct virtio_ne
+ 	size = msg->payload.log.mmap_size;
+ 	off  = msg->payload.log.mmap_offset;
+ 
+-	/* Don't allow mmap_offset to point outside the mmap region */
+-	if (off > size) {
++	/* Check for mmap size and offset overflow. */
++	if (off >= -size) {
+ 		RTE_LOG(ERR, VHOST_CONFIG,
+-			"log offset %#"PRIx64" exceeds log size %#"PRIx64"\n",
++			"log offset %#"PRIx64" and log size %#"PRIx64" overflow\n",
+ 			off, size);
+ 		return RTE_VHOST_MSG_RESULT_ERR;
+ 	}

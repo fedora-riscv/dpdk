@@ -1,0 +1,12 @@
+diff -up ./lib/librte_vhost/vhost_user.c.vring-idx ./lib/librte_vhost/vhost_user.c
+--- ./lib/librte_vhost/vhost_user.c.vring-idx	2020-05-19 12:20:37.148280549 -0400
++++ ./lib/librte_vhost/vhost_user.c	2020-05-19 12:23:58.266594561 -0400
+@@ -2542,7 +2542,7 @@ static int
+ vhost_user_check_and_alloc_queue_pair(struct virtio_net *dev,
+ 			struct VhostUserMsg *msg)
+ {
+-	uint16_t vring_idx;
++	uint32_t vring_idx;
+ 
+ 	switch (msg->request.master) {
+ 	case VHOST_USER_SET_VRING_KICK:
