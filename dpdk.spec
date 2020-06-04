@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 19.11.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -219,6 +219,8 @@ setconf CONFIG_RTE_APP_EVENTDEV n
 
 setconf CONFIG_RTE_LIBRTE_NFP_PMD y
 
+setconf CONFIG_RTE_LIBRTE_MLX5_PMD y
+
 %ifarch aarch64
 setconf CONFIG_RTE_LIBRTE_DPAA_BUS n
 setconf CONFIG_RTE_LIBRTE_DPAA_MEMPOOL n
@@ -350,6 +352,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Thu Jun 04 2020 Neil Horman <nhorman@redhat.com> - 2:19.11-3
+- Enable MLX5 PMD (bz 1843590)
+
 * Thu May 07 2020 Neil Horman <nhorman@redhat.com> - 2:19.11-2
 - Fix error in python interpreter fixup (bz 1832416)
 
