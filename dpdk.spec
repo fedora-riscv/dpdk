@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 19.11.1
-Release: 3%{?dist}
+Release: 4%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -65,6 +65,7 @@ ExclusiveArch: x86_64 i686 aarch64 ppc64le
 BuildRequires: gcc
 BuildRequires: kernel-headers, libpcap-devel, doxygen, python3-sphinx, zlib-devel, wdiff
 BuildRequires: numactl-devel
+BuildRequires: rdma-core-devel
 %if %{with pdfdoc}
 BuildRequires: texlive-dejavu inkscape texlive-latex-bin-bin
 BuildRequires: texlive-kpathsea-bin texlive-metafont-bin texlive-cm
@@ -352,6 +353,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Thu Jun 04 2020 Neil Horman <nhorman@redhat.com> - 2:19.11-4
+- Fix broken buildrequires (bz1843590)
+
 * Thu Jun 04 2020 Neil Horman <nhorman@redhat.com> - 2:19.11-3
 - Enable MLX5 PMD (bz 1843590)
 
