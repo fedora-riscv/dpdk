@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 19.11.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -86,6 +86,7 @@ Requires: %{name}%{?_isa} = %{epoch}:%{version}-%{release} python3
 %if ! %{with shared}
 Provides: %{name}-static = %{epoch}:%{version}-%{release}
 %endif
+Requires: rdma-core-devel
 
 %description devel
 This package contains the headers and other files needed for developing
@@ -353,13 +354,16 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
-* Thu Jun 04 2020 Neil Horman <nhorman@redhat.com> - 2:19.11-4
+* Tue Jun 23 2020 Timothy Redaelli <tredaelli@redhat.com> - 2:19.11.1-5
+- Fix missing Requires for dpdk-devel (bz1843590)
+
+* Thu Jun 04 2020 Neil Horman <nhorman@redhat.com> - 2:19.11.1-4
 - Fix broken buildrequires (bz1843590)
 
-* Thu Jun 04 2020 Neil Horman <nhorman@redhat.com> - 2:19.11-3
+* Thu Jun 04 2020 Neil Horman <nhorman@redhat.com> - 2:19.11.1-3
 - Enable MLX5 PMD (bz 1843590)
 
-* Thu May 07 2020 Neil Horman <nhorman@redhat.com> - 2:19.11-2
+* Thu May 07 2020 Neil Horman <nhorman@redhat.com> - 2:19.11.1-2
 - Fix error in python interpreter fixup (bz 1832416)
 
 * Mon Apr 06 2020 Timothy Redaelli <tredaelli@redhat.com> - 2:19.11-1
