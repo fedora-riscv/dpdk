@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 19.11.1
-Release: 5%{?dist}
+Release: 6%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -156,6 +156,11 @@ end
 %patch3 -p1
 
 %build
+# This package currently fails to build with LTO, but enabling LTO support
+# is under development upstream.  This should be revisited if/when this
+# package is rebased
+%define _lto_cflags %{nil}
+
 %set_build_flags
 # set up a method for modifying the resulting .config file
 function setconf() {
@@ -354,6 +359,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Wed Jul 01 2020 Jeff Law <law@redhat.com> - 2:19.11.1-6
+- Disable LTO
+
 * Tue Jun 23 2020 Timothy Redaelli <tredaelli@redhat.com> - 2:19.11.1-5
 - Fix missing Requires for dpdk-devel (bz1843590)
 
