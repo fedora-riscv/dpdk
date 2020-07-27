@@ -9,7 +9,7 @@
 
 Name: dpdk
 Version: 19.11.1
-Release: 6%{?dist}
+Release: 7%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -359,6 +359,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Mon Jul 27 2020 Fedora Release Engineering <releng@fedoraproject.org> - 2:19.11.1-7
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
 * Wed Jul 01 2020 Jeff Law <law@redhat.com> - 2:19.11.1-6
 - Disable LTO
 
