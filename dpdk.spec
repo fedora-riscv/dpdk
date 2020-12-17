@@ -113,6 +113,7 @@ Requires: kmod pciutils findutils iproute python3-pyelftools
 %package examples
 Summary: Data Plane Development Kit example applications
 BuildRequires: libvirt-devel
+BuildRequires: make
 
 %description examples
 Example applications utilizing the Data Plane Development Kit, such
