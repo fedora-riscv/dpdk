@@ -1,23 +1,18 @@
 # Add option to build as static libraries (--without shared)
 %bcond_without shared
 # Add option to build without examples
-%bcond_without examples
+%bcond_with examples
 # Add option to build without tools
 %bcond_without tools
-# Add option to build the PDF documentation separately (--with pdfdoc)
-%bcond_with pdfdoc
 
 Name: dpdk
-Version: 19.11.3
-Release: 3%{?dist}
+Version: 20.11
+Release: 1%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
 
-Patch0: app-pie.patch
-Patch1: fcf-protection.patch
-# fixed multilib issue with doxygen
-Patch3: dpdk-stable-18.11.2-doxygen-multilib.patch
+BuildRequires: meson
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -35,46 +30,10 @@ License: BSD and LGPLv2 and GPLv2
 #
 ExclusiveArch: x86_64 i686 aarch64 ppc64le
 
-# machine_arch maps between rpm and dpdk arch name, often same as _target_cpu
-# machine_tmpl is the config template machine name, often "native"
-# machine is the actual machine name used in the dpdk make system
-%ifarch x86_64
-%define machine_arch x86_64
-%define machine_tmpl native
-%define machine default
-%endif
-%ifarch i686
-%define machine_arch i686
-%define machine_tmpl native
-%define machine default 
-%endif
-%ifarch aarch64
-%define machine_arch arm64
-%define machine_tmpl armv8a
-%define machine armv8a
-%endif
-%ifarch ppc64le
-%define machine_arch ppc_64
-%define machine_tmpl power8
-%define machine power8
-%endif
-
-
-%define target %{machine_arch}-%{machine_tmpl}-linuxapp-gcc
-
 BuildRequires: gcc
-BuildRequires: kernel-headers, libpcap-devel, doxygen, python3-sphinx, zlib-devel, wdiff
+BuildRequires: kernel-headers, libpcap-devel, doxygen, /usr/bin/sphinx-build, zlib-devel
 BuildRequires: numactl-devel
 BuildRequires: rdma-core-devel
-%if %{with pdfdoc}
-BuildRequires: texlive-dejavu inkscape texlive-latex-bin-bin
-BuildRequires: texlive-kpathsea-bin texlive-metafont-bin texlive-cm
-BuildRequires: texlive-cmap texlive-ec texlive-babel-english
-BuildRequires: texlive-fancyhdr texlive-fancybox texlive-titlesec
-BuildRequires: texlive-framed texlive-threeparttable texlive-mdwtools
-BuildRequires: texlive-wrapfig texlive-parskip texlive-upquote texlive-multirow
-BuildRequires: texlive-helvetic texlive-times texlive-dvips
-%endif
 
 %description
 The Data Plane Development Kit is a set of libraries and drivers for
@@ -82,9 +41,9 @@ fast packet processing in the user space.
 
 %package devel
 Summary: Data Plane Development Kit development files
-Requires: %{name}%{?_isa} = %{epoch}:%{version}-%{release} python3
+Requires: %{name}%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release} python3
 %if ! %{with shared}
-Provides: %{name}-static = %{epoch}:%{version}-%{release}
+Provides: %{name}-static = %{?epoch:%{epoch}:}%{version}-%{release}
 %endif
 Requires: rdma-core-devel
 
@@ -102,7 +61,7 @@ API programming documentation for the Data Plane Development Kit.
 %if %{with tools}
 %package tools
 Summary: Tools for setting up Data Plane Development Kit environment
-Requires: %{name} = %{epoch}:%{version}-%{release}
+Requires: %{name} = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires: kmod pciutils findutils iproute python3-pyelftools
 
 %description tools
@@ -147,170 +106,36 @@ for i,path in ipairs(directories) do
     end
   end
 end
-
 %prep
-%setup -q -n dpdk-stable-%{version}
-%patch0 -p1
-%ifarch x86_64 i686
-%patch1 -p1
-%endif
-%patch3 -p1
+%setup -q -n dpdk-%{version}
 
 %build
-%set_build_flags
-# set up a method for modifying the resulting .config file
-function setconf() {
-	if grep -q ^$1= %{target}/.config; then
-		sed -i "s:^$1=.*$:$1=$2:g" %{target}/.config
-	else
-		echo $1=$2 >> %{target}/.config
-	fi
-}
-
-# In case dpdk-devel is installed, we should ignore its hints about the SDK directories
-unset RTE_SDK RTE_INCLUDE RTE_TARGET
-
-# Avoid appending second -Wall to everything, it breaks upstream warning
-# disablers in makefiles. Strip expclit -march= from optflags since they
-# will only guarantee build failures, DPDK is picky with that.
-# Note: _hardening_ldflags has to go on the extra cflags line because dpdk is
-# astoundingly convoluted in how it processes its linker flags.  Fixing it in
-# dpdk is the preferred solution, but adjusting to allow a gcc option in the
-# ldflags, even when gcc is used as the linker, requires large tree-wide changes
-touch obj.o
-gcc -### obj.o 2>&1 | awk '/.*collect2.*/ { print $0}' > ./noopts.txt
-gcc -### $(rpm --eval '%{build_ldflags}') obj.o 2>&1 | awk '/.*collect2.*/ {print $0}' > ./opts.txt
-EXTRA_RPM_LDFLAGS=$(wdiff -3 -n ./noopts.txt ./opts.txt | sed -e"/^=\+$/d" -e"/^.*\.res.*/d" -e"s/\[-//g" -e"s/\-\]//g" -e"s/{+//g" -e"s/+}//g" -e"s/\/.*\.o //g" -e"s/ \/.*\.o$//g" -e"s/-z .*//g" | tr '\n' ' ')
-rm -f obj.o
-
-export EXTRA_CFLAGS="$(echo %{optflags} | sed -e 's:-Wall::g' -e 's:-march=[[:alnum:]]* ::g') -Wformat -fPIC -fcommon %{_hardening_ldflags}"
-%ifarch x86_64 i686
-export EXTRA_CFLAGS="$EXTRA_CFLAGS -fcf-protection=full"
-%endif
-export EXTRA_LDFLAGS=$(echo %{__global_ldflags} | sed -e's/-Wl,//g' -e's/-spec.*//')
-export HOST_EXTRA_CFLAGS="$EXTRA_CFLAGS $EXTRA_RPM_LDFLAGS"
-export EXTRA_HOST_LDFLAGS="$EXTRA_RPM_LDFLAGS $(echo %{__global_ldflags} | sed -e's/-spec.*//')"
-
-# DPDK defaults to using builder-specific compiler flags.  However,
-# the config has been changed by specifying CONFIG_RTE_MACHINE=default
-# in order to build for a more generic host.  NOTE: It is possible that
-# the compiler flags used still won't work for all Fedora-supported
-# machines, but runtime checks in DPDK will catch those situations.
-
-make V=1 O=%{target} T=%{target} %{?_smp_mflags} config
-
-setconf CONFIG_RTE_MACHINE '"%{machine}"'
-# Disable experimental features
-setconf CONFIG_RTE_NEXT_ABI n
-setconf CONFIG_RTE_LIBRTE_MBUF_OFFLOAD n
-# Disable unmaintained features
-setconf CONFIG_RTE_LIBRTE_POWER n
-
-# Enable automatic driver loading from this path
-setconf CONFIG_RTE_EAL_PMD_PATH '"%{pmddir}"'
-
-setconf CONFIG_RTE_LIBRTE_BNX2X_PMD y
-setconf CONFIG_RTE_LIBRTE_PMD_PCAP y
-setconf CONFIG_RTE_LIBRTE_VHOST_NUMA y
-
-setconf CONFIG_RTE_EAL_IGB_UIO n
-setconf CONFIG_RTE_LIBRTE_KNI n
-setconf CONFIG_RTE_KNI_KMOD n
-setconf CONFIG_RTE_KNI_PREEMPT_DEFAULT n
-
-setconf CONFIG_RTE_APP_EVENTDEV n
-
-setconf CONFIG_RTE_LIBRTE_NFP_PMD y
-
-setconf CONFIG_RTE_LIBRTE_MLX5_PMD y
-
-%ifarch aarch64
-setconf CONFIG_RTE_LIBRTE_DPAA_BUS n
-setconf CONFIG_RTE_LIBRTE_DPAA_MEMPOOL n
-setconf CONFIG_RTE_LIBRTE_DPAA_PMD n
-setconf CONFIG_RTE_LIBRTE_PFE_PMD n
-setconf CONFIG_RTE_LIBRTE_PMD_CAAM_JR n
-setconf CONFIG_RTE_LIBRTE_PMD_CAAM_JR_BE n
-%endif
-
-%if %{with shared}
-setconf CONFIG_RTE_BUILD_SHARED_LIB y
-%endif
-
-make V=1 O=%{target} %{?_smp_mflags} -Wimplicit-fallthrough=0
-make V=1 O=%{target} %{?_smp_mflags} doc-api-html doc-guides-html %{?with_pdfdoc: guides-pdf}
-
+CFLAGS="$(echo %{optflags} -fcommon)" \
+%meson --includedir=include/dpdk \
+       -Ddrivers_install_subdir=dpdk-pmds \
+       -Denable_docs=true \
+       -Dmachine=default \
 %if %{with examples}
-make V=1 O=%{target}/examples T=%{target} %{?_smp_mflags} examples
+       -Dexamples=all \
 %endif
+%if %{with shared}
+  --default-library=shared
+%else
+  --default-library=static
+%endif
+
+%meson_build
 
 %install
-# In case dpdk-devel is installed
-unset RTE_SDK RTE_INCLUDE RTE_TARGET
-
-%make_install O=%{target} prefix=%{_usr} libdir=%{_libdir}
-
-%if ! %{with tools}
-rm -rf %{buildroot}%{sdkdir}/usertools
-rm -rf %{buildroot}%{_sbindir}/dpdk_nic_bind
-rm -rf %{buildroot}%{_bindir}/dpdk-test-crypto-perf
-rm -rf %{buildroot}%{_bindir}/testbbdev
-%else
-mv %{buildroot}%{_bindir}/testbbdev %{buildroot}%{_bindir}/dpdk-test-bbdev
-%endif
-rm -f %{buildroot}%{sdkdir}/usertools/dpdk-setup.sh
-rm -f %{buildroot}%{sdkdir}/usertools/meson.build
-
-%if %{with examples}
-find %{target}/examples/ -name "*.map" | xargs rm -f
-for f in %{target}/examples/*/%{target}/app/*; do
-    bn=`basename ${f}`
-    cp -p ${f} %{buildroot}%{_bindir}/dpdk_example_${bn}
-done
-%endif
-
-# Replace /usr/bin/env python with /usr/bin/python3
-find %{buildroot}%{sdkdir}/ -name "*.py" -exec \
-  sed -i -e 's|#!\s*/usr/bin/env python|#!/usr/bin/python3|' {} +
-
-find %{buildroot}%{sdkdir}/ -name "*.py" -exec \
-  sed -i -e 's|#!\s*/usr/bin/python33|#!/usr/bin/python3|' {} +
-
-# Create a driver directory with symlinks to all pmds
-mkdir -p %{buildroot}/%{pmddir}
-for f in %{buildroot}/%{_libdir}/*_pmd_*.so.*; do
-    bn=$(basename ${f})
-    ln -s ../${bn} %{buildroot}%{pmddir}/${bn}
-done
-
-# Setup RTE_SDK environment as expected by apps etc
-mkdir -p %{buildroot}/%{_sysconfdir}/profile.d
-cat << EOF > %{buildroot}/%{_sysconfdir}/profile.d/dpdk-sdk-%{_arch}.sh
-if [ -z "\${RTE_SDK}" ]; then
-    export RTE_SDK="%{sdkdir}"
-    export RTE_TARGET="%{target}"
-    export RTE_INCLUDE="%{incdir}"
-fi
-EOF
-
-cat << EOF > %{buildroot}/%{_sysconfdir}/profile.d/dpdk-sdk-%{_arch}.csh
-if (! -d \$?RTE_SDK ) then
-    setenv RTE_SDK "%{sdkdir}"
-    setenv RTE_TARGET "%{target}"
-    setenv RTE_INCLUDE "%{incdir}"
-endif
-EOF
-
-# Fixup target machine mismatch
-sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profile.d/dpdk-sdk*
+%meson_install
 
 %files
 # BSD
-%{_bindir}/testpmd
-%{_bindir}/dpdk-procinfo
+%{_bindir}/dpdk-testpmd
+%{_bindir}/dpdk-proc-info
 %if %{with shared}
 %{_libdir}/*.so.*
-%{pmddir}/
+%{pmddir}/*.so.*
 %endif
 
 %files doc
@@ -324,28 +149,29 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %ghost %{sdkdir}/mk/exec-env/bsdapp
 %ghost %{sdkdir}/mk/exec-env/linuxapp
 %if %{with tools}
-%exclude %{sdkdir}/usertools/
+%exclude %{_bindir}/dpdk-*.py
 %endif
 %if %{with examples}
 %exclude %{sdkdir}/examples/
 %endif
-%{_sysconfdir}/profile.d/dpdk-sdk-*.*
 %if ! %{with shared}
 %{_libdir}/*.a
+%exclude %{_libdir}/*.so
+%exclude %{pmddir}/*.so
 %else
 %{_libdir}/*.so
+%{pmddir}/*.so
+%exclude %{_libdir}/*.a
 %endif
+%{_libdir}/pkgconfig/libdpdk.pc
+%{_libdir}/pkgconfig/libdpdk-libs.pc
 
 %if %{with tools}
 %files tools
-%{sdkdir}/usertools/
-%{_sbindir}/dpdk-devbind
 %{_bindir}/dpdk-pdump
-%{_bindir}/dpdk-pmdinfo
-%{_bindir}/dpdk-test-bbdev
-%{_bindir}/dpdk-test-compress-perf
-%{_bindir}/dpdk-test-crypto-perf
-%{_bindir}/testsad
+%{_bindir}/dpdk-test
+%{_bindir}/dpdk-test-*
+%{_bindir}/dpdk-*.py
 %endif
 
 %if %{with examples}
@@ -355,6 +181,9 @@ sed -i -e 's:-%{machine_tmpl}-:-%{machine}-:g' %{buildroot}/%{_sysconfdir}/profi
 %endif
 
 %changelog
+* Thu Jan 21 2021 Timothy Redaelli <tredaelli@redhat.com> - 2:20.11-1
+- Update to 20.11
+
 * Tue Jan 26 2021 Fedora Release Engineering <releng@fedoraproject.org> - 2:19.11.3-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_34_Mass_Rebuild
 
