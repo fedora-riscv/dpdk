@@ -5,6 +5,9 @@
 # Add option to build without tools
 %bcond_without tools
 
+# Avoid architecture-specific name of build-dir to fix per-arch reproducibility with doxygen
+%global _vpath_builddir %{_vendor}-%{_target_os}-build
+
 Name: dpdk
 Version: 20.11
 Release: 1%{?dist}
