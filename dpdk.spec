@@ -190,7 +190,7 @@ CFLAGS="$(echo %{optflags} -fcommon)" \
 * Wed Jul 21 2021 Fedora Release Engineering <releng@fedoraproject.org> - 2:20.11-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
 
-* Thu Jan 21 2021 Timothy Redaelli <tredaelli@redhat.com> - 2:20.11-1
+* Wed Feb 17 2021 Timothy Redaelli <tredaelli@redhat.com> - 2:20.11-1
 - Update to 20.11
 
 * Tue Jan 26 2021 Fedora Release Engineering <releng@fedoraproject.org> - 2:19.11.3-3
