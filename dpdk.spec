@@ -9,13 +9,14 @@
 %global _vpath_builddir %{_vendor}-%{_target_os}-build
 
 Name: dpdk
-Version: 20.11
-Release: 3%{?dist}
+Version: 21.11
+Release: 1%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
 
 BuildRequires: meson
+BuildRequires: python3-pyelftools
 
 Summary: Set of libraries and drivers for fast packet processing
 
@@ -37,6 +38,10 @@ BuildRequires: gcc
 BuildRequires: kernel-headers, libpcap-devel, doxygen, /usr/bin/sphinx-build, zlib-devel
 BuildRequires: numactl-devel
 BuildRequires: rdma-core-devel
+BuildRequires: openssl-devel
+BuildRequires: libbpf-devel
+BuildRequires: libfdt-devel
+BuildRequires: libatomic
 
 %description
 The Data Plane Development Kit is a set of libraries and drivers for
@@ -117,7 +122,7 @@ CFLAGS="$(echo %{optflags} -fcommon)" \
 %meson --includedir=include/dpdk \
        -Ddrivers_install_subdir=dpdk-pmds \
        -Denable_docs=true \
-       -Dmachine=default \
+       -Dmachine=generic \
 %if %{with examples}
        -Dexamples=all \
 %endif
@@ -171,6 +176,7 @@ CFLAGS="$(echo %{optflags} -fcommon)" \
 
 %if %{with tools}
 %files tools
+%{_bindir}/dpdk-dumpcap
 %{_bindir}/dpdk-pdump
 %{_bindir}/dpdk-test
 %{_bindir}/dpdk-test-*
