@@ -190,6 +190,10 @@ CFLAGS="$(echo %{optflags} -fcommon)" \
 %endif
 
 %changelog
+* Wed Mar 09 2022 Timothy Redaelli <tredaelli@redhat.com> - 2:21.11-1
+- Update to 21.11 (bz1991248)
+- Add other dependencies in order to build all the possible PMDs
+
 * Thu Jan 20 2022 Fedora Release Engineering <releng@fedoraproject.org> - 2:20.11-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_36_Mass_Rebuild
 
