@@ -9,7 +9,7 @@
 %global _vpath_builddir %{_vendor}-%{_target_os}-build
 
 Name: dpdk
-Version: 21.11
+Version: 21.11.1
 Release: 1%{?dist}
 Epoch: 2
 URL: http://dpdk.org
@@ -190,6 +190,9 @@ CFLAGS="$(echo %{optflags} -fcommon)" \
 %endif
 
 %changelog
+* Fri Apr 29 2022 Timothy Redaelli <tredaelli@redhat.com> - 2:21.11.1-1
+- Update to 21.11.1
+
 * Wed Mar 09 2022 Timothy Redaelli <tredaelli@redhat.com> - 2:21.11-1
 - Update to 21.11 (bz1991248)
 - Add other dependencies in order to build all the possible PMDs
