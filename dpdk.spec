@@ -9,8 +9,8 @@
 %global _vpath_builddir %{_vendor}-%{_target_os}-build
 
 Name: dpdk
-Version: 20.11
-Release: 2%{?dist}
+Version: 20.11.5
+Release: 1%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -184,10 +184,13 @@ CFLAGS="$(echo %{optflags} -fcommon)" \
 %endif
 
 %changelog
+* Fri Apr 29 2022 Timothy Redaelli <tredaelli@redhat.com> - 2:20.11.5-1
+- Update to 20.11.5
+
 * Wed Jul 21 2021 Fedora Release Engineering <releng@fedoraproject.org> - 2:20.11-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
 
-* Thu Jan 21 2021 Timothy Redaelli <tredaelli@redhat.com> - 2:20.11-1
+* Tue Jan 26 2021 Timothy Redaelli <tredaelli@redhat.com> - 2:20.11-1
 - Update to 20.11
 
 * Tue Jan 26 2021 Fedora Release Engineering <releng@fedoraproject.org> - 2:19.11.3-3
