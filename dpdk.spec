@@ -110,7 +110,7 @@ for i,path in ipairs(directories) do
   end
 end
 %prep
-%setup -q -n dpdk-%{version}
+%setup -q -n dpdk%(awk -F. '{ if (NF > 2) print "-stable" }' <<<%{version})-%{version}
 
 %build
 CFLAGS="$(echo %{optflags} -fcommon)" \
