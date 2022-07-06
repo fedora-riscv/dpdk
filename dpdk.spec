@@ -10,7 +10,7 @@
 
 Name: dpdk
 Version: 21.11.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -42,6 +42,7 @@ BuildRequires: openssl-devel
 BuildRequires: libbpf-devel
 BuildRequires: libfdt-devel
 BuildRequires: libatomic
+BuildRequires: libarchive-devel
 
 %description
 The Data Plane Development Kit is a set of libraries and drivers for
@@ -190,6 +191,9 @@ CFLAGS="$(echo %{optflags} -fcommon)" \
 %endif
 
 %changelog
+* Wed Jul 06 2022 Timothy Redaelli <tredaelli@redhat.com> - 2:21.11.1-2
+- Support compressed firmwares (bz2104418)
+
 * Fri Apr 29 2022 Timothy Redaelli <tredaelli@redhat.com> - 2:21.11.1-1
 - Update to 21.11.1
 
