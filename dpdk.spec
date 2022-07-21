@@ -10,7 +10,7 @@
 
 Name: dpdk
 Version: 21.11.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -191,6 +191,9 @@ CFLAGS="$(echo %{optflags} -fcommon)" \
 %endif
 
 %changelog
+* Thu Jul 21 2022 Fedora Release Engineering <releng@fedoraproject.org> - 2:21.11.1-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild
+
 * Wed Jul 06 2022 Timothy Redaelli <tredaelli@redhat.com> - 2:21.11.1-2
 - Support compressed firmwares (bz2104418)
 
