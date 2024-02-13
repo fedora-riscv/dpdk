@@ -10,7 +10,7 @@
 
 Name: dpdk
 Version: 22.11.1
-Release: 2%{?dist}
+Release: 2.rv64%{?dist}
 Epoch: 2
 URL: http://dpdk.org
 Source: https://fast.dpdk.org/rel/dpdk-%{version}.tar.xz
@@ -32,7 +32,7 @@ License: BSD and LGPLv2 and GPLv2
 # other techniques, carefully crafted assembly instructions.  As such it
 # needs extensive work to port it to other architectures.
 #
-ExclusiveArch: x86_64 i686 aarch64 ppc64le
+ExclusiveArch: x86_64 i686 aarch64 ppc64le riscv64
 
 BuildRequires: gcc
 BuildRequires: kernel-headers, libpcap-devel, doxygen, /usr/bin/sphinx-build, zlib-devel
@@ -193,6 +193,9 @@ CFLAGS="$(echo %{optflags} -fcommon)" \
 %changelog
 * Wed Jul 19 2023 Fedora Release Engineering <releng@fedoraproject.org> - 2:22.11.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_39_Mass_Rebuild
+
+* Thu Jul 04 2023 Liu Yang <Yang.Liu.sn@gmail.com> - 2:22.11.1-1.rv64
+- Add riscv64.
 
 * Fri Mar 03 2023 Timothy Redaelli <tredaelli@redhat.com> - 2:22.11.1-1
 - Update to 22.11.1
